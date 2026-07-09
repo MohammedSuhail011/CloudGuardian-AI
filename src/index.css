@@ -1,0 +1,179 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+  }
+
+  /* Theme: Cyberpunk Dark (default) */
+  [data-theme="theme-cyberpunk"] {
+    --theme-primary: #06b6d4;
+    --theme-secondary: #8b5cf6;
+    --theme-gradient-from: rgba(6, 182, 212, 0.15);
+    --theme-gradient-mid: rgba(59, 130, 246, 0.1);
+    --theme-gradient-to: rgba(139, 92, 246, 0.15);
+  }
+
+  /* Theme: Midnight Azure */
+  [data-theme="theme-azure"] {
+    --theme-primary: #3b82f6;
+    --theme-secondary: #6366f1;
+    --theme-gradient-from: rgba(59, 130, 246, 0.15);
+    --theme-gradient-mid: rgba(99, 102, 241, 0.1);
+    --theme-gradient-to: rgba(59, 130, 246, 0.15);
+  }
+
+  /* Theme: Neon Matrix */
+  [data-theme="theme-matrix"] {
+    --theme-primary: #10b981;
+    --theme-secondary: #34d399;
+    --theme-gradient-from: rgba(16, 185, 129, 0.15);
+    --theme-gradient-mid: rgba(52, 211, 153, 0.1);
+    --theme-gradient-to: rgba(16, 185, 129, 0.15);
+  }
+
+  * {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    background-image:
+      radial-gradient(circle at 50% 0%, var(--theme-gradient-from, rgba(6, 182, 212, 0.15)), transparent 50%),
+      radial-gradient(circle at 0% 50%, var(--theme-gradient-mid, rgba(59, 130, 246, 0.1)), transparent 50%),
+      radial-gradient(circle at 100% 100%, var(--theme-gradient-to, rgba(139, 92, 246, 0.15)), transparent 50%);
+    background-attachment: fixed;
+    background-color: #030712;
+    overflow-x: hidden;
+    transition: background-image 0.6s ease;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-cyber-card backdrop-blur-md border border-cyber-border rounded-xl shadow-[0_0_15px_rgba(56,189,248,0.1)];
+  }
+  
+  .glass-panel-hover {
+    @apply glass-panel transition-all duration-300 hover:shadow-[0_0_25px_rgba(56,189,248,0.3)] hover:border-neon-cyan/50;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  }
+  
+  .text-glow-cyan {
+    text-shadow: 0 0 10px rgba(6, 182, 212, 0.7);
+  }
+
+  .text-glow-purple {
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.7);
+  }
+
+  .scrollbar-cyber::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .scrollbar-cyber::-webkit-scrollbar-track {
+    @apply bg-cyber-darker;
+  }
+  
+  .scrollbar-cyber::-webkit-scrollbar-thumb {
+    @apply bg-neon-blue/50 rounded-full hover:bg-neon-blue/80 transition-colors;
+  }
+}
+
+/* Scan line animation */
+.scan-line {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, rgba(6, 182, 212, 0.8), transparent);
+  animation: scan 3s linear infinite;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+}
+
+@keyframes scan {
+  0% { top: -10%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 110%; opacity: 0; }
+}
+
+/* Animated grid background */
+.cyber-grid {
+  background-image: 
+    linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridScroll 20s linear infinite;
+}
+
+@keyframes gridScroll {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(60px, 60px); }
+}
+
+/* Shimmer effect for loading states */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(56, 189, 248, 0) 0%,
+    rgba(56, 189, 248, 0.05) 50%,
+    rgba(56, 189, 248, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Typing indicator */
+.typing-dot {
+  animation: typingBounce 1.4s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+}
+
+/* Fade in up on scroll helper */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.fade-in-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
