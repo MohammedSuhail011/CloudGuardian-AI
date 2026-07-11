@@ -259,7 +259,7 @@ export const StatCard = React.memo<StatCardProps>(({
               exit={{ opacity: 0, scale: 0.96, y: 12, filter: 'blur(2px)' }}
               transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
               onClick={e => e.stopPropagation()}
-              className="w-full max-w-xl glass-panel p-0 overflow-hidden max-h-[85vh] flex flex-col"
+              className="w-full max-w-xl bg-cyber-card backdrop-blur-md border border-cyber-border rounded-xl shadow-[0_0_15px_rgba(56,189,248,0.1)] p-0 overflow-hidden max-h-[85vh] flex flex-col"
             >
               <div className="p-5 border-b border-cyber-border flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">

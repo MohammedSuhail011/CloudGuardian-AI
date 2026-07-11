@@ -161,7 +161,7 @@ export const LiveFeed: React.FC<LiveFeedProps> = React.memo(({ items, drawerFeed
               animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
               exit={{ opacity: 0, x: 320, filter: 'blur(4px)' }}
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-              className="fixed right-0 top-0 bottom-0 z-[101] w-full max-w-md glass-panel rounded-none border-y-0 border-r-0 flex flex-col shadow-2xl"
+              className="fixed right-0 top-0 bottom-0 z-[101] w-full max-w-md bg-cyber-card backdrop-blur-md border border-cyber-border rounded-none border-y-0 border-r-0 flex flex-col shadow-2xl"
               onKeyDown={e => { if (e.key === 'Escape') onCloseDrawer(); }}
             >
               <div className="p-6 border-b border-cyber-border flex items-center justify-between shrink-0">

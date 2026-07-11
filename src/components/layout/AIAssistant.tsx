@@ -91,7 +91,7 @@ export const AIAssistant: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
             exit={{ opacity: 0, y: 20, scale: 0.95, filter: 'blur(4px)' }}
             transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-            className="fixed bottom-6 right-6 w-96 h-[500px] glass-panel bg-cyber-darker/95 z-50 flex flex-col overflow-hidden shadow-2xl border border-neon-cyan/30 rounded-2xl"
+            className="fixed bottom-6 right-6 w-96 h-[500px] bg-cyber-card backdrop-blur-md border border-cyber-border rounded-xl bg-cyber-darker/95 z-50 flex flex-col overflow-hidden shadow-2xl border-neon-cyan/30 rounded-2xl"
           >
             {/* Header */}
             <div className="p-4 border-b border-cyber-border bg-gradient-to-r from-cyber-darker to-cyber-dark flex items-center justify-between">

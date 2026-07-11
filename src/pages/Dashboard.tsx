@@ -759,7 +759,7 @@ export const Dashboard = () => {
               variants={modalPanel}
               initial="hidden" animate="visible" exit="exit"
               onClick={e => e.stopPropagation()}
-              className="w-full max-w-lg glass-panel p-0 overflow-hidden max-h-[90vh] overflow-y-auto scrollbar-cyber"
+              className="w-full max-w-lg bg-cyber-card backdrop-blur-md border border-cyber-border rounded-xl shadow-[0_0_15px_rgba(56,189,248,0.1)] p-0 overflow-hidden max-h-[90vh] overflow-y-auto scrollbar-cyber"
             >
               {/* --- Scan Modal --- */}
               {activeModal === 'scan' && (
