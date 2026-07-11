@@ -25,7 +25,6 @@
     --ring: 224.3 76.3% 48%;
   }
 
-  /* Theme: Cyberpunk Dark (default) */
   [data-theme="theme-cyberpunk"] {
     --theme-primary: #06b6d4;
     --theme-secondary: #8b5cf6;
@@ -34,7 +33,6 @@
     --theme-gradient-to: rgba(139, 92, 246, 0.15);
   }
 
-  /* Theme: Midnight Azure */
   [data-theme="theme-azure"] {
     --theme-primary: #3b82f6;
     --theme-secondary: #6366f1;
@@ -43,7 +41,6 @@
     --theme-gradient-to: rgba(59, 130, 246, 0.15);
   }
 
-  /* Theme: Neon Matrix */
   [data-theme="theme-matrix"] {
     --theme-primary: #10b981;
     --theme-secondary: #34d399;
@@ -67,22 +64,73 @@
     background-color: #030712;
     overflow-x: hidden;
     transition: background-image 0.6s ease;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Momentum scrolling for main content */
+  .scrollbar-cyber {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  /* Smooth transitions for ALL interactive elements */
+  a, button, input, select, textarea, [role="button"], [role="link"], [role="tab"] {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Smooth images and SVGs */
+  img, svg {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  /* GPU-accelerated smoothness */
+  .gpu-accelerated {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 }
 
 @layer utilities {
   .glass-panel {
     @apply bg-cyber-card backdrop-blur-md border border-cyber-border rounded-xl shadow-[0_0_15px_rgba(56,189,248,0.1)];
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease;
   }
 
   .glass-panel:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 25px rgba(56,189,248,0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(56, 189, 248, 0.12), 0 0 20px rgba(56, 189, 248, 0.08);
+    border-color: rgba(56, 189, 248, 0.2);
+  }
+
+  /* Disable hover lift on panels that contain interactive elements */
+  .glass-panel:has(button):hover,
+  .glass-panel:has(a):hover,
+  .glass-panel:has(input):hover {
+    transform: none;
   }
   
   .glass-panel-hover {
     @apply glass-panel transition-all duration-300 hover:shadow-[0_0_25px_rgba(56,189,248,0.3)] hover:border-neon-cyan/50;
+  }
+
+  /* Smooth button base */
+  .btn-smooth {
+    @apply transition-all duration-200;
+    &:hover { transform: translateY(-1px); }
+    &:active { transform: translateY(0) scale(0.98); }
+  }
+
+  /* Close/X buttons - smooth hover */
+  button:has(svg) {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  button:has(svg):hover {
+    transform: scale(1.08);
+  }
+  button:has(svg):active {
+    transform: scale(0.92);
   }
 
   .text-glow {
@@ -107,12 +155,16 @@
   }
   
   .scrollbar-cyber::-webkit-scrollbar-thumb {
-    @apply bg-neon-blue/50 rounded-full hover:bg-neon-blue/80 transition-colors;
+    @apply bg-neon-blue/50 rounded-full;
+    transition: background-color 0.2s ease;
+  }
+  .scrollbar-cyber::-webkit-scrollbar-thumb:hover {
+    @apply bg-neon-blue/80;
   }
 
   .feed-scroll::-webkit-scrollbar { width: 4px; }
   .feed-scroll::-webkit-scrollbar-track { background: transparent; }
-  .feed-scroll::-webkit-scrollbar-thumb { background: rgba(6,182,212,0.3); border-radius: 4px; }
+  .feed-scroll::-webkit-scrollbar-thumb { background: rgba(6,182,212,0.3); border-radius: 4px; transition: background-color 0.2s ease; }
   .feed-scroll::-webkit-scrollbar-thumb:hover { background: rgba(6,182,212,0.5); }
 }
 
@@ -134,7 +186,6 @@ svg:focus-visible {
   outline: none !important;
 }
 
-/* Make Recharts backgrounds translucent */
 .recharts-wrapper,
 .recharts-surface,
 .recharts-wrapper rect[fill="white"],
@@ -148,12 +199,10 @@ svg:focus-visible {
   background: transparent !important;
 }
 
-/* Translucent tooltip default background */
 .recharts-tooltip-wrapper {
   background: transparent !important;
 }
 
-/* Restore pointer cursor on interactive elements when system cursor is hidden */
 a, button, input, select, textarea, [role="button"], [role="link"],
 .nav-link, .recharts-bar-rectangle, .recharts-sector {
   cursor: pointer !important;
@@ -225,11 +274,11 @@ a, button, input, select, textarea, [role="button"], [role="link"],
   100% { left: 120%; }
 }
 
-/* Fade in up on scroll helper */
+/* Smooth fade in up on scroll */
 .fade-in-up {
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .fade-in-up.visible {
@@ -239,7 +288,6 @@ a, button, input, select, textarea, [role="button"], [role="link"],
 
 /* ========== Background Effects ========== */
 
-/* Floating gradient orbs */
 .bg-orb {
   position: absolute;
   border-radius: 50%;
@@ -321,7 +369,7 @@ a, button, input, select, textarea, [role="button"], [role="link"],
   100% { transform: translateY(100vh); opacity: 0; }
 }
 
-/* Data rain — vertical columns falling */
+/* Data rain */
 .data-rain-column {
   position: absolute;
   top: -20%;
@@ -388,4 +436,33 @@ a, button, input, select, textarea, [role="button"], [role="link"],
 @keyframes interferenceScroll {
   0% { transform: translateY(0); }
   100% { transform: translateY(4px); }
+}
+
+/* Smooth page transition wrapper */
+.page-smooth {
+  animation: pageFadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Skeleton loading pulse */
+.skeleton-smooth {
+  background: linear-gradient(90deg, rgba(56,189,248,0.03) 25%, rgba(56,189,248,0.08) 50%, rgba(56,189,248,0.03) 75%);
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+@keyframes skeletonPulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }

@@ -55,7 +55,7 @@ function ThreatsPanel({ threats }: { threats: ThreatDetail[] }) {
             <button
               key={s}
               onClick={() => setFilter(s)}
-              className={`px-3 py-1.5 rounded text-xs font-medium capitalize transition-all ${
+              className={`px-3 py-1.5 rounded text-xs font-medium capitalize transition-all duration-200 hover:scale-105 active:scale-95 ${
                 filter === s
                   ? 'bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/30'
                   : 'text-gray-400 hover:text-white border border-transparent'
@@ -215,10 +215,10 @@ export const StatCard = React.memo<StatCardProps>(({
     <>
       <motion.button
         onClick={() => !isDisabled && setIsOpen(true)}
-        whileHover={!isDisabled ? { scale: 1.02, y: -4 } : {}}
+        whileHover={!isDisabled ? { scale: 1.02, y: -3 } : {}}
         whileTap={!isDisabled ? { scale: 0.98 } : {}}
-        transition={{ type: "spring", stiffness: 300, damping: 15 }}
-        className={`glass-panel p-6 relative overflow-hidden group border ${borderColor} w-full text-left ${isDisabled ? 'cursor-default' : 'cursor-pointer'}`}
+        transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+        className={`glass-panel p-6 relative overflow-hidden group border ${borderColor} w-full text-left ${isDisabled ? 'cursor-default' : 'cursor-pointer hover:shadow-lg'}`}
         style={{ outline: 'none' }}
       >
         <motion.div
@@ -254,10 +254,10 @@ export const StatCard = React.memo<StatCardProps>(({
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.92, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
+              initial={{ opacity: 0, scale: 0.94, y: 20, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, scale: 0.96, y: 12, filter: 'blur(2px)' }}
+              transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
               onClick={e => e.stopPropagation()}
               className="w-full max-w-xl glass-panel p-0 overflow-hidden max-h-[85vh] flex flex-col"
             >

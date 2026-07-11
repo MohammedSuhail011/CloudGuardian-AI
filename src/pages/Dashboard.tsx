@@ -13,12 +13,12 @@ import { tooltipContentStyle, tooltipCursorStyle, PieActiveShape, AnimatedBarSha
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.07 } },
+  visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.05 } },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] as const } },
 };
 
 const modalOverlay = {
@@ -27,9 +27,9 @@ const modalOverlay = {
 };
 
 const modalPanel = {
-  hidden: { opacity: 0, scale: 0.92, y: 30 },
-  visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring" as const, stiffness: 350, damping: 25 } },
-  exit: { opacity: 0, scale: 0.95, y: 20, transition: { duration: 0.15 } },
+  hidden: { opacity: 0, scale: 0.94, y: 20, filter: 'blur(4px)' },
+  visible: { opacity: 1, scale: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] } },
+  exit: { opacity: 0, scale: 0.96, y: 12, filter: 'blur(2px)', transition: { duration: 0.18 } },
 };
 
 function NoDataEmptyState({ message, actionLabel, actionLink }: { message: string; actionLabel?: string; actionLink?: string }) {
@@ -643,10 +643,10 @@ export const Dashboard = () => {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: '-20px' }}
-                    transition={{ duration: 0.4, delay: quickActions.indexOf(action) * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    whileHover={{ scale: 1.03, y: -5 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="p-4 rounded-2xl text-left text-white border border-white/10 hover:border-white/25 transition-all shadow-lg relative overflow-hidden group/card"
+                    transition={{ duration: 0.35, delay: quickActions.indexOf(action) * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
+                    whileHover={{ scale: 1.04, y: -4 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="p-4 rounded-2xl text-left text-white border border-white/10 hover:border-white/25 transition-all duration-200 shadow-lg relative overflow-hidden group/card active:shadow-inner"
                     style={{
                       background: `linear-gradient(145deg, ${action.gradient[0]}, ${action.gradient[1]})`,
                       boxShadow: `0 4px 24px ${action.glowColor}40`,

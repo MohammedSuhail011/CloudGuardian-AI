@@ -73,9 +73,10 @@ export const AIAssistant: React.FC = () => {
       <motion.button
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        whileHover={{ scale: 1.1 }}
+        whileHover={{ scale: 1.12 }}
+        whileTap={{ scale: 0.92 }}
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-neon-blue to-neon-purple p-[2px] z-50 shadow-[0_0_20px_rgba(6,182,212,0.5)] ${isOpen ? 'hidden' : 'block'}`}
+        className={`fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-neon-blue to-neon-purple p-[2px] z-50 shadow-[0_0_20px_rgba(6,182,212,0.5)] transition-shadow duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.7)] ${isOpen ? 'hidden' : 'block'}`}
       >
         <div className="w-full h-full bg-cyber-darker rounded-full flex items-center justify-center relative overflow-hidden group">
           <Bot className="w-7 h-7 text-white group-hover:text-neon-cyan transition-colors relative z-10" />
@@ -86,9 +87,10 @@ export const AIAssistant: React.FC = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 20, scale: 0.95, filter: 'blur(8px)' }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, y: 20, scale: 0.95, filter: 'blur(4px)' }}
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
             className="fixed bottom-6 right-6 w-96 h-[500px] glass-panel bg-cyber-darker/95 z-50 flex flex-col overflow-hidden shadow-2xl border border-neon-cyan/30 rounded-2xl"
           >
             {/* Header */}
@@ -105,7 +107,7 @@ export const AIAssistant: React.FC = () => {
               </div>
               <button 
                 onClick={() => setIsOpen(false)}
-                className="text-gray-400 hover:text-white transition-colors p-1"
+                className="text-gray-400 hover:text-white hover:scale-110 active:scale-95 transition-all duration-200 p-1"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -114,7 +116,13 @@ export const AIAssistant: React.FC = () => {
             {/* Chat Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-cyber">
               {messages.slice(-50).map((msg, idx) => (
-                <div key={`${msg.role}-${idx}`} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <motion.div
+                  key={`${msg.role}-${idx}`}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
                   <div className={`max-w-[85%] p-3 rounded-lg text-sm ${
                     msg.role === 'user' 
                       ? 'bg-neon-cyan/20 text-white border border-neon-cyan/30 rounded-br-none'
@@ -125,7 +133,7 @@ export const AIAssistant: React.FC = () => {
                     )}
                     <span className="whitespace-pre-wrap">{msg.content}</span>
                   </div>
-                </div>
+                </motion.div>
               ))}
               {isLoading && (
                 <div className="flex justify-start">
@@ -146,12 +154,12 @@ export const AIAssistant: React.FC = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask about cloud security, or just say hi..."
-                  className="w-full bg-cyber-darker border border-cyber-border rounded-lg pl-4 pr-12 py-3 text-sm text-white focus:outline-none focus:border-neon-cyan focus:ring-1 focus:ring-neon-cyan transition-all placeholder:text-gray-500"
+                  className="w-full bg-cyber-darker border border-cyber-border rounded-lg pl-4 pr-12 py-3 text-sm text-white focus:outline-none focus:border-neon-cyan focus:ring-1 focus:ring-neon-cyan focus:shadow-[0_0_12px_rgba(6,182,212,0.15)] transition-all duration-200 placeholder:text-gray-500"
                 />
                 <button
                   type="submit"
                   disabled={!input.trim() || isLoading}
-                  className="absolute right-2 p-2 text-neon-cyan hover:text-white disabled:opacity-50 disabled:hover:text-neon-cyan transition-colors"
+                  className="absolute right-2 p-2 text-neon-cyan hover:text-white hover:scale-110 active:scale-90 disabled:opacity-50 disabled:hover:text-neon-cyan disabled:hover:scale-100 transition-all duration-200"
                 >
                   <Send className="w-4 h-4" />
                 </button>

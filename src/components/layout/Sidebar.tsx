@@ -138,7 +138,7 @@ export const Sidebar: React.FC = () => {
         )}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="absolute -right-3 top-8 bg-cyber-dark border border-neon-cyan rounded-full p-1 text-neon-cyan hover:bg-neon-cyan hover:text-cyber-dark transition-colors"
+          className="absolute -right-3 top-8 bg-cyber-dark border border-neon-cyan rounded-full p-1 text-neon-cyan hover:bg-neon-cyan hover:text-cyber-dark transition-all duration-200 hover:scale-110 active:scale-95"
         >
           {isExpanded ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
         </button>
@@ -163,12 +163,12 @@ export const Sidebar: React.FC = () => {
               ref={activeIndex === idx ? activeItemRef : undefined}
               onClick={() => { setTimeout(updateSlider, 50); }}
               className={({ isActive }) =>
-                `flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 group relative ${
+                `flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 ease-out group relative ${
                   isActive
                     ? isExpanded
                       ? 'text-white bg-gradient-to-r from-neon-cyan/15 to-transparent shadow-[inset_0_0_20px_rgba(6,182,212,0.08)]'
                       : 'text-white bg-neon-cyan/20'
-                    : 'text-gray-400 hover:text-white hover:bg-cyber-card'
+                    : 'text-gray-400 hover:text-white hover:bg-cyber-card hover:translate-x-1'
                 }`
               }
             >
@@ -185,7 +185,7 @@ export const Sidebar: React.FC = () => {
         <button
           ref={profileRef}
           onClick={handleProfileClick}
-          className={`w-full glass-panel p-4 rounded-lg flex items-center gap-3 hover:border-neon-cyan/50 transition-all ${isExpanded ? '' : 'justify-center'} group cursor-pointer relative overflow-hidden`}
+          className={`w-full glass-panel p-4 rounded-lg flex items-center gap-3 hover:border-neon-cyan/50 hover:translate-y-[-1px] transition-all duration-200 ${isExpanded ? '' : 'justify-center'} group cursor-pointer relative overflow-hidden active:scale-[0.98]`}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/0 via-neon-cyan/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-neon-blue to-neon-purple p-[2px] shrink-0 relative z-10">

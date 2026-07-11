@@ -21,11 +21,11 @@ const severityColors: Record<Severity, string> = { Critical: '#ef4444', High: '#
 const providerColors: Record<CloudProvider, string> = { AWS: '#ff9900', Azure: '#0089D6', GCP: '#EA4335' };
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.04 } },
+  visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.04 } },
 };
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] as const } },
 };
 
 function formatNumber(n: number): string { return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n); }

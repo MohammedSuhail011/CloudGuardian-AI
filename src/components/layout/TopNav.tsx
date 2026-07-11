@@ -28,7 +28,7 @@ export const TopNav: React.FC = () => {
           <input
             type="text"
             placeholder="Search resources, alerts, IPs..."
-            className="w-full bg-cyber-dark/50 border border-cyber-border rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-neon-cyan focus:ring-1 focus:ring-neon-cyan transition-all"
+            className="w-full bg-cyber-dark/50 border border-cyber-border rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-neon-cyan focus:ring-1 focus:ring-neon-cyan focus:shadow-[0_0_12px_rgba(6,182,212,0.15)] transition-all duration-200"
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
             <kbd className="px-1.5 py-0.5 rounded bg-cyber-dark border border-cyber-border text-xs text-gray-400">Ctrl</kbd>
@@ -47,7 +47,7 @@ export const TopNav: React.FC = () => {
           <div className="relative">
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative p-2 text-gray-400 hover:text-neon-cyan transition-colors"
+              className="relative p-2 text-gray-400 hover:text-neon-cyan hover:scale-110 active:scale-95 transition-all duration-200"
             >
               <Bell className="w-6 h-6" />
               <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse-glow shadow-[0_0_10px_rgba(239,68,68,0.8)]"></span>
@@ -76,7 +76,7 @@ export const TopNav: React.FC = () => {
                   </div>
                   <button 
                     onClick={() => setShowNotifications(false)}
-                    className="w-full mt-4 py-2 text-xs text-neon-cyan hover:bg-cyber-dark rounded transition-colors border border-transparent hover:border-neon-cyan/30"
+                    className="w-full mt-4 py-2 text-xs text-neon-cyan hover:bg-cyber-dark rounded transition-all duration-200 border border-transparent hover:border-neon-cyan/30 hover:scale-[1.02] active:scale-[0.98]"
                   >
                     Close
                   </button>
@@ -87,7 +87,7 @@ export const TopNav: React.FC = () => {
           
           <button 
             onClick={() => navigate('/settings')}
-            className="p-2 text-gray-400 hover:text-neon-purple transition-colors group"
+            className="p-2 text-gray-400 hover:text-neon-purple hover:scale-110 active:scale-95 transition-all duration-200 group"
           >
             <SettingsIcon className="w-6 h-6 group-hover:rotate-90 transition-transform duration-500" />
           </button>
