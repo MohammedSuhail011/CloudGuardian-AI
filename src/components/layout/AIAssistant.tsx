@@ -10,7 +10,7 @@ interface Message {
 export const AIAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Greetings, Commander. I am Jarvis, your CloudGuardian AI. How can I assist you with threat detection or mitigation today?' }
+    { role: 'assistant', content: "Hey! I'm CloudGuardian AI — your cloud security assistant. I can help with scanning your AWS, Azure, or GCP environments, analyzing threats, or just chatting. What can I do for you?" }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -99,7 +99,7 @@ export const AIAssistant: React.FC = () => {
                   <span className="absolute -top-1 -right-1 w-2 h-2 bg-neon-green rounded-full animate-pulse"></span>
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-sm">Jarvis AI</h3>
+                  <h3 className="text-white font-bold text-sm">CloudGuardian AI</h3>
                   <p className="text-neon-cyan text-xs font-mono">Status: Online</p>
                 </div>
               </div>
@@ -131,7 +131,7 @@ export const AIAssistant: React.FC = () => {
                 <div className="flex justify-start">
                   <div className="bg-cyber-dark p-3 rounded-lg border border-cyber-border rounded-bl-none flex items-center gap-2 text-neon-cyan text-xs font-mono">
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    PROCESSING_THREAT_DATA...
+                    PROCESSING...
                   </div>
                 </div>
               )}
@@ -145,7 +145,7 @@ export const AIAssistant: React.FC = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask Jarvis to analyze threats..."
+                  placeholder="Ask about cloud security, or just say hi..."
                   className="w-full bg-cyber-darker border border-cyber-border rounded-lg pl-4 pr-12 py-3 text-sm text-white focus:outline-none focus:border-neon-cyan focus:ring-1 focus:ring-neon-cyan transition-all placeholder:text-gray-500"
                 />
                 <button
