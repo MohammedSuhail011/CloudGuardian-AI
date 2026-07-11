@@ -102,25 +102,31 @@ export function PieActiveShape(props: {
 
 export function BarActiveShape(props: {
   fill?: string; x?: number; y?: number; width?: number; height?: number;
+  index?: number;
 }) {
   const fill = props.fill ?? '#000'; const x = props.x ?? 0; const y = props.y ?? 0;
   const width = props.width ?? 0; const height = props.height ?? 0;
+  const idx = props.index ?? 0;
   return (
     <g>
       <defs>
-        <filter id="bar-glow">
-          <feGaussianBlur stdDeviation="3" result="blur" />
+        <filter id="active-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="6" result="blur" />
           <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
       </defs>
+      {/* Soft glow halo */}
       <rect
-        x={x - 2} y={y - 6} width={width + 4} height={height + 8}
-        rx={6} ry={6}
+        x={x - 4} y={y - 8} width={width + 8} height={height + 12}
+        rx={8} ry={8}
         fill={fill}
-        opacity={0.25}
-        style={{ filter: 'url(#bar-glow)' }}
+        opacity={0.2}
+        filter="url(#active-glow)"
       />
-      <rect x={x} y={y - 3} width={width} height={height + 4} rx={4} ry={4} fill={fill} opacity={1} />
+      {/* Main highlighted bar */}
+      <rect x={x - 1} y={y - 4} width={width + 2} height={height + 4} rx={5} ry={5} fill={fill} opacity={1} />
+      {/* Top cap */}
+      <rect x={x - 1} y={y - 4} width={width + 2} height={3} rx={4} fill="white" opacity={0.25} />
     </g>
   );
 }
