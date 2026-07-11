@@ -1,6 +1,45 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, X, Send, Terminal, Loader2 } from 'lucide-react';
+import { X, Send, Terminal, Loader2 } from 'lucide-react';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+const DangerBot: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    {/* Hoodie outer */}
+    <path d="M8 20 Q8 6, 24 4 Q40 6, 40 20 L42 32 Q42 42, 34 44 L14 44 Q6 42, 6 32 Z" stroke="currentColor" strokeWidth="1.6" fill="none" />
+    {/* Hoodie inner shadow */}
+    <path d="M12 22 Q12 10, 24 8 Q36 10, 36 22 L36 28 Q36 30, 34 30 L14 30 Q12 30, 12 28 Z" stroke="currentColor" strokeWidth="0.8" fill="none" opacity="0.2" />
+    {/* Messy hair peeking from hood */}
+    <path d="M16 18 L14 14 L18 16 L17 11 L21 15 L22 10 L24 14 L26 10 L27 15 L30 11 L29 16 L32 14 L30 18" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    {/* Face shape - thin angular */}
+    <path d="M16 20 L16 30 L18 35 L24 38 L30 35 L32 30 L32 20" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    {/* Left eye - tired intense */}
+    <path d="M18 24 L21 23 L23 24 L21 26 Z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" fill="none" />
+    <circle cx="21" cy="24.5" r="0.9" fill="currentColor" />
+    {/* Right eye - tired intense */}
+    <path d="M25 24 L27 23 L30 24 L27 26 Z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" fill="none" />
+    <circle cx="27" cy="24.5" r="0.9" fill="currentColor" />
+    {/* Dark circles under eyes */}
+    <path d="M19 26 Q21 28, 23 26" stroke="currentColor" strokeWidth="0.6" fill="none" opacity="0.4" />
+    <path d="M25 26 Q27 28, 29 26" stroke="currentColor" strokeWidth="0.6" fill="none" opacity="0.4" />
+    {/* Nose */}
+    <path d="M24 26 L23 30 L24 30.5 L25 30" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    {/* Mouth - slight frown */}
+    <path d="M21 33 Q24 34, 27 33" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" fill="none" />
+    {/* Stubble dots */}
+    <circle cx="20" cy="35" r="0.3" fill="currentColor" opacity="0.3" />
+    <circle cx="22" cy="36" r="0.3" fill="currentColor" opacity="0.3" />
+    <circle cx="24" cy="36.5" r="0.3" fill="currentColor" opacity="0.3" />
+    <circle cx="26" cy="36" r="0.3" fill="currentColor" opacity="0.3" />
+    <circle cx="28" cy="35" r="0.3" fill="currentColor" opacity="0.3" />
+    <circle cx="19" cy="33" r="0.3" fill="currentColor" opacity="0.2" />
+    <circle cx="29" cy="33" r="0.3" fill="currentColor" opacity="0.2" />
+    {/* FSociety mask hint on hoodie */}
+    <circle cx="24" cy="40" r="2" stroke="currentColor" strokeWidth="0.6" fill="none" opacity="0.3" />
+    <path d="M22.5 39.5 Q24 41, 25.5 39.5" stroke="currentColor" strokeWidth="0.5" fill="none" opacity="0.3" />
+  </svg>
+);
 
 interface Message {
   role: 'user' | 'assistant';
@@ -44,7 +83,7 @@ export const AIAssistant: React.FC = () => {
     abortRef.current = controller;
 
     try {
-      const response = await fetch('http://localhost:3001/api/chat', {
+      const response = await fetch(`${API_BASE}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userMessage }),
@@ -57,7 +96,7 @@ export const AIAssistant: React.FC = () => {
         role: 'assistant', 
         content: data.response || 'System Error: Neural link severed.' 
       }]);
-    } catch (err) {
+    } catch {
       if (controller.signal.aborted) return;
       setMessages(prev => [...prev, { 
         role: 'assistant', 
@@ -73,14 +112,46 @@ export const AIAssistant: React.FC = () => {
       <motion.button
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        whileHover={{ scale: 1.12 }}
-        whileTap={{ scale: 0.92 }}
+        whileHover={{ scale: 1.15 }}
+        whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-neon-blue to-neon-purple p-[2px] z-50 shadow-[0_0_20px_rgba(6,182,212,0.5)] transition-shadow duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.7)] ${isOpen ? 'hidden' : 'block'}`}
+        className={`fixed bottom-6 right-6 z-50 group ${isOpen ? 'hidden' : 'block'}`}
       >
-        <div className="w-full h-full bg-cyber-darker rounded-full flex items-center justify-center relative overflow-hidden group">
-          <Bot className="w-7 h-7 text-white group-hover:text-neon-cyan transition-colors relative z-10" />
-          <div className="absolute inset-0 bg-neon-cyan/20 animate-ping rounded-full"></div>
+        {/* Outer rotating ring */}
+        <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-blue animate-spin-slow opacity-70 blur-[1px]" style={{ animationDuration: '3s' }} />
+
+        {/* Secondary counter-rotating ring */}
+        <div className="absolute -inset-0.5 rounded-full bg-gradient-to-l from-neon-pink via-neon-cyan to-neon-purple animate-spin-reverse opacity-50" />
+
+        {/* Glow pulse */}
+        <div className="absolute -inset-2 rounded-full bg-neon-cyan/20 animate-pulse-glow" />
+
+        {/* Orbital dots */}
+        <div className="absolute -inset-3 animate-spin-slow" style={{ animationDuration: '3s' }}>
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-neon-cyan rounded-full shadow-[0_0_8px_rgba(6,182,212,1)]" />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-neon-purple rounded-full shadow-[0_0_8px_rgba(139,92,246,1)]" />
+        </div>
+        <div className="absolute -inset-4 animate-spin-reverse">
+          <div className="absolute top-1/2 left-0 -translate-y-1/2 w-1 h-1 bg-neon-blue rounded-full shadow-[0_0_6px_rgba(59,130,246,1)]" />
+          <div className="absolute top-1/2 right-0 -translate-y-1/2 w-1.5 h-1.5 bg-neon-pink rounded-full shadow-[0_0_8px_rgba(236,72,153,1)]" />
+        </div>
+
+        {/* Button body */}
+        <div className="relative w-14 h-14 rounded-full bg-cyber-darker border border-neon-cyan/40 flex items-center justify-center overflow-hidden shadow-[0_0_25px_rgba(6,182,212,0.4),inset_0_0_15px_rgba(6,182,212,0.1)] hover:shadow-[0_0_35px_rgba(6,182,212,0.6),inset_0_0_20px_rgba(6,182,212,0.15)] transition-shadow duration-300">
+          {/* Inner energy field */}
+          <div className="absolute inset-1 rounded-full border border-neon-cyan/20 animate-pulse-energy" />
+          <div className="absolute inset-2 rounded-full border border-neon-purple/10 animate-pulse-energy-delay" />
+
+          {/* Scan line */}
+          <div className="absolute inset-0 overflow-hidden rounded-full">
+            <div className="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-neon-cyan to-transparent ai-scan-line" />
+          </div>
+
+          {/* Core icon */}
+          <DangerBot className="w-8 h-8 text-white group-hover:text-neon-cyan transition-colors relative z-10 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+
+          {/* Inner glow core */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-t from-neon-cyan/10 to-transparent" />
         </div>
       </motion.button>
 
@@ -97,7 +168,7 @@ export const AIAssistant: React.FC = () => {
             <div className="p-4 border-b border-cyber-border bg-gradient-to-r from-cyber-darker to-cyber-dark flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <Bot className="w-6 h-6 text-neon-cyan" />
+                  <DangerBot className="w-7 h-7 text-neon-cyan" />
                   <span className="absolute -top-1 -right-1 w-2 h-2 bg-neon-green rounded-full animate-pulse"></span>
                 </div>
                 <div>

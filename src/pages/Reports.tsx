@@ -71,9 +71,8 @@ function getSeverityBreakdown(findings: { severity: string }[]) {
 export const Reports = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [reports, setReports] = useState<{ id: string; name: string; date: string; size: string; type: string }[]>([]);
-  const { resources, analysis, datasetName } = useDataset();
+  const { resources, analysis } = useDataset();
 
-  const hasData = resources.length > 0;
   const hasAnalysis = analysis !== null;
 
   const handleGenerate = () => {

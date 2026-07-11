@@ -16,6 +16,7 @@ export default {
           green: '#10b981',
           red: '#ef4444',
           yellow: '#f59e0b',
+          pink: '#ec4899',
         },
         cyber: {
           dark: '#0f172a',

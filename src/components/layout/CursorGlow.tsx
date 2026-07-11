@@ -1,9 +1,15 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export const CursorGlow: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   useEffect(() => {
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
+
+  useEffect(() => {
+    if (isTouchDevice) return;
     const el = ref.current;
     if (!el) return;
     const move = (e: MouseEvent) => {
@@ -12,7 +18,9 @@ export const CursorGlow: React.FC = () => {
     };
     window.addEventListener('mousemove', move, { passive: true });
     return () => window.removeEventListener('mousemove', move);
-  }, []);
+  }, [isTouchDevice]);
+
+  if (isTouchDevice) return null;
 
   return (
     <div

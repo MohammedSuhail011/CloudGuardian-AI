@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Cloud, Shield, Database, Lock, Server, Activity, ArrowUpRight, AlertTriangle, CheckCircle, Clock, ChevronDown, ChevronRight, BarChart } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { motion } from 'framer-motion';
+import { Cloud, Shield, Database, Lock, Server, Activity, ArrowUpRight, AlertTriangle, Clock } from 'lucide-react';
+import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useDataset } from '../store/DatasetContext';
 import { tooltipContentStyle, tooltipCursorStyle, PieActiveShape } from '../utils/chartConfig';
 
@@ -15,8 +15,6 @@ const serviceColors: Record<string, string> = {
   Lambda: 'text-orange-400', RDS: 'text-purple-500', CloudTrail: 'text-teal-500',
   GuardDuty: 'text-red-500', VPC: 'text-cyan-500',
 };
-
-const providerColor = '#ff9900';
 
 function computeSecurityScore(analysis: { findings: { riskScore: number }[] } | null): number {
   if (!analysis || analysis.findings.length === 0) return 0;
@@ -45,7 +43,6 @@ const itemVariants = {
 };
 
 export const AWS = () => {
-  const [expandedComp, setExpandedComp] = useState<string | null>(null);
   const [selectedAlert, setSelectedAlert] = useState<number | null>(null);
   const { resources, analysis } = useDataset();
 

@@ -406,7 +406,7 @@ a, button, input, select, textarea, [role="button"], [role="link"],
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 256px 256px;
-  animation: noiseShift 0.5s steps(4) infinite;
+  animation: noiseShift 3s steps(4) infinite;
 }
 
 @keyframes noiseShift {
@@ -564,4 +564,42 @@ a, button, input, select, textarea, [role="button"], [role="link"],
 @keyframes coreGlow {
   0%, 100% { filter: drop-shadow(0 0 8px rgba(6,182,212,0.6)) drop-shadow(0 0 20px rgba(139,92,246,0.3)); }
   50% { filter: drop-shadow(0 0 15px rgba(6,182,212,0.9)) drop-shadow(0 0 40px rgba(139,92,246,0.5)) drop-shadow(0 0 60px rgba(6,182,212,0.2)); }
+}
+
+/* AI Chatbot Button VFX */
+.animate-spin-reverse {
+  animation: spin 6s linear infinite reverse;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.animate-pulse-energy {
+  animation: pulseEnergy 1.5s ease-in-out infinite;
+}
+
+.animate-pulse-energy-delay {
+  animation: pulseEnergy 1.5s ease-in-out 0.5s infinite;
+}
+
+.ai-scan-line {
+  animation: aiScanLine 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.08); }
+}
+
+@keyframes pulseEnergy {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.05); }
+}
+
+@keyframes aiScanLine {
+  0% { transform: translateY(-100%); opacity: 0; }
+  20% { opacity: 0.8; }
+  80% { opacity: 0.8; }
+  100% { transform: translateY(600%); opacity: 0; }
 }

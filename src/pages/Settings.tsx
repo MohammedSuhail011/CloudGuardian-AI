@@ -164,6 +164,7 @@ export const Settings = () => {
         if (data.email) setEmail(data.email);
         if (data.notifications) setNotifications(data.notifications);
         if (data.cloudAccounts) setCloudAccounts(data.cloudAccounts);
+        if (data.grokKey) setGrokKey(data.grokKey);
       } catch {}
     }
   }, []);
@@ -183,6 +184,7 @@ export const Settings = () => {
       email,
       notifications,
       cloudAccounts,
+      grokKey,
     };
     localStorage.setItem('cyberweb-settings', JSON.stringify(data));
     window.dispatchEvent(new CustomEvent('displayNameChange', { detail: displayName }));

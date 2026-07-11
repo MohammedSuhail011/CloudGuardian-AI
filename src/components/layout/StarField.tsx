@@ -11,12 +11,6 @@ interface Star {
   vy: number;
 }
 
-interface Connection {
-  a: number;
-  b: number;
-  strength: number;
-}
-
 export const StarField: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -72,7 +66,7 @@ export const StarField: React.FC = () => {
     const onVisibility = () => { paused = document.hidden; };
     document.addEventListener('visibilitychange', onVisibility);
 
-    const draw = (now: number) => {
+    const draw = (_now: number) => {
       animId = requestAnimationFrame(draw);
       if (paused) return;
 

@@ -42,7 +42,7 @@ export const ParticlesBackground: React.FC = () => {
       if (paused) return;
       if (now - lastFrame < frameInterval) return;
       lastFrame = now;
-      skip = (skip + 1) % 3;
+      skip = (skip + 1) % 5;
       ctx.clearRect(0, 0, w, h);
       for (const p of particles) {
         p.x += p.vx;
@@ -64,11 +64,11 @@ export const ParticlesBackground: React.FC = () => {
             const dx = particles[i].x - particles[j].x;
             const dy = particles[i].y - particles[j].y;
             const dist = dx * dx + dy * dy;
-            if (dist < 22500) {
+            if (dist < 14400) {
               ctx.beginPath();
               ctx.moveTo(particles[i].x, particles[i].y);
               ctx.lineTo(particles[j].x, particles[j].y);
-              ctx.strokeStyle = `rgba(6, 182, 212, ${0.08 * (1 - Math.sqrt(dist) / 150)})`;
+              ctx.strokeStyle = `rgba(6, 182, 212, ${0.08 * (1 - Math.sqrt(dist) / 120)})`;
               ctx.stroke();
             }
           }

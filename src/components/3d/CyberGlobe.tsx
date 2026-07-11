@@ -1,7 +1,7 @@
 import React, { useRef, useMemo, useState, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Sphere, Line, OrbitControls } from '@react-three/drei';
-import { Vector3, BufferGeometry, BufferAttribute, MeshBasicMaterial, QuadraticBezierCurve3, DoubleSide, BackSide, Mesh, Points, PointsMaterial, TorusGeometry } from 'three';
+import { Vector3, BufferGeometry, BufferAttribute, MeshBasicMaterial, QuadraticBezierCurve3, DoubleSide, BackSide, Mesh, Points, PointsMaterial } from 'three';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -397,7 +397,6 @@ function ScanLine() {
 // Vertical light pillars from threat locations
 function ThreatPillars() {
   const refs = useRef<(Mesh | null)[]>([]);
-  const count = threatDotPositions.length;
 
   useFrame(({ clock }) => {
     refs.current.forEach((mesh, i) => {
@@ -727,7 +726,7 @@ export const CyberGlobe = () => {
       <Canvas camera={{ position: [0, 0, 5.5], fov: 42 }}>
         <ambientLight intensity={0.3} />
         <GlobeMesh onDotClick={handleDotClick} />
-        <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.3} />
+        <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.8} />
       </Canvas>
 
       {/* HUD overlays */}

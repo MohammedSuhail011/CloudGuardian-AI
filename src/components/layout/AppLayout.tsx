@@ -5,8 +5,8 @@ import { Sidebar } from './Sidebar';
 import { TopNav } from './TopNav';
 import { ParticlesBackground } from './ParticlesBackground';
 import { BackgroundEffects } from './BackgroundEffects';
-import { StarField } from './StarField';
 import { CursorGlow } from './CursorGlow';
+import { StarField } from './StarField';
 import { AIAssistant } from './AIAssistant';
 
 export const AppLayout: React.FC = () => {

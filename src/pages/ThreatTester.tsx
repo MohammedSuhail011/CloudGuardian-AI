@@ -1,11 +1,11 @@
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Upload, FileText, AlertTriangle, CheckCircle, X, Search, Shield,
-  Activity, Lock, Eye, ChevronRight, BarChart3, Server,
-  PieChart, TrendingUp, Zap,
-  Bug, Loader2, Cpu, HardDrive, Globe, BrainCircuit, FileJson,
-  FileSpreadsheet, Printer, Target, Siren, Trash2,
+  Upload, FileText, AlertTriangle, CheckCircle, X, Shield,
+  Activity, ChevronRight, BarChart3, Server,
+  PieChart, Zap,
+  Bug, Loader2, HardDrive, BrainCircuit, FileJson,
+  FileSpreadsheet, Siren, Trash2,
 } from 'lucide-react';
 import {
   PieChart as RechartsPie, Pie, Cell, BarChart, Bar, XAxis, YAxis,
@@ -118,13 +118,11 @@ export const ThreatTester = () => {
           parsed = parseJSON(text);
         }
         if (parsed.length === 0) {
-          alert('wrong file u nerd');
-          setUploadMsg({ type: 'error', text: 'No valid resources found in file.' });
+          setUploadMsg({ type: 'error', text: 'No valid resources found in file. Please check the format.' });
           return;
         }
         processAndAnalyze(parsed, `Loaded ${parsed.length} resources from ${file.name}`);
       } catch (e) {
-        alert('wrong file u nerd');
         setUploadMsg({ type: 'error', text: `Parse error: ${e instanceof Error ? e.message : 'Invalid format'}` });
       }
     };
@@ -221,41 +219,6 @@ Respond in JSON: {"executiveSummary":"...","threatAnalysis":"...","businessImpac
     }
     setAiLoading(false);
   }, [analysis, aiApiKey, aiModel, generateOfflineAnalysis]);
-
-  const exportData = useCallback((format: 'csv' | 'json' | 'pdf' | 'docx') => {
-    if (!analysis) return;
-    const d = new Date().toISOString().slice(0, 10);
-
-    if (format === 'csv') {
-      const headers = 'Resource Name,Provider,Service,Threat,Severity,Risk Score,Status,Recommendation';
-      const rows = analysis.findings.map((f) =>
-        `"${f.resourceName}","${f.provider}","${f.service}","${f.threat}","${f.severity}",${f.riskScore},"${f.status}","${f.recommendation}"`
-      );
-      const blob = new Blob([headers + '\n' + rows.join('\n')], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = `threat-report-${d}.csv`; a.click();
-      URL.revokeObjectURL(url);
-      return;
-    }
-
-    if (format === 'json') {
-      const payload = { exportDate: d, ...analysis };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = `threat-report-${d}.json`; a.click();
-      URL.revokeObjectURL(url);
-      return;
-    }
-
-    const reportHTML = generateReportHTML(analysis, d);
-    const ext = format === 'pdf' ? 'html' : 'doc';
-    const mime = format === 'pdf' ? 'text/html' : 'application/msword';
-    const blob = new Blob([reportHTML], { type: mime });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = `threat-report-${d}.${ext}`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [analysis]);
 
   const chartData = useMemo(() => {
     if (!analysis) return null;
@@ -751,30 +714,3 @@ const DetailSection = ({ title, text }: { title: string; text: string }) => (
     <p className="text-sm text-gray-300 leading-relaxed">{text}</p>
   </div>
 );
-
-function generateReportHTML(analysis: AnalysisResult, date: string): string {
-  const threatRows = analysis.findings.map((f) =>
-    `<tr><td>${f.resourceName}</td><td>${f.provider}</td><td>${f.service}</td><td>${f.threat}</td><td>${f.severity}</td><td>${f.riskScore}</td><td>${f.recommendation}</td></tr>`
-  ).join('\n');
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Threat Report - ${date}</title>
-<style>
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0e1a; color: #e2e8f0; padding: 40px; }
-  h1 { color: #06b6d4; font-size: 24px; border-bottom: 2px solid #06b6d4; padding-bottom: 10px; }
-  h2 { color: #fff; font-size: 18px; margin-top: 30px; }
-  .score { font-size: 48px; font-weight: bold; }
-  .meta { color: #64748b; font-size: 12px; margin-bottom: 20px; }
-  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-  th { background: #1e293b; color: #94a3b8; text-align: left; padding: 8px 12px; border: 1px solid #334155; }
-  td { padding: 8px 12px; border: 1px solid #1e293b; color: #cbd5e1; }
-  .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #334155; font-size: 11px; color: #64748b; }
-</style></head><body>
-<h1>CLOUDCORE X — Threat Assessment Report</h1>
-<p class="meta">Generated: ${date} | Resources: ${analysis.resources.length} | Findings: ${analysis.findings.length}</p>
-<div class="score" style="color:${analysis.riskScore >= 60 ? '#ef4444' : analysis.riskScore >= 40 ? '#f97316' : analysis.riskScore >= 20 ? '#eab308' : '#22c55e'}">${analysis.riskScore}<span style="font-size:18px;color:#64748b">/100</span></div>
-<p style="color:#ef4444">Threat Level: ${analysis.threatLevel}</p>
-<h2>Findings Summary</h2>
-<table><thead><tr><th>Resource</th><th>Provider</th><th>Service</th><th>Threat</th><th>Severity</th><th>Score</th><th>Recommendation</th></tr></thead><tbody>${threatRows}</tbody></table>
-<p style="margin-top:20px">Compliant: ${analysis.compliantCount} | Non-Compliant: ${analysis.nonCompliantCount}</p>
-<div class="footer">CLOUDCORE X - Cyber Security Dashboard</div>
-</body></html>`;
-}

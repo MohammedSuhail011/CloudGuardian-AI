@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, AlertTriangle, CheckCircle, Activity, Server, Lock, Eye, Zap, Clock, ArrowRight, FileText, Download, X, ChevronRight, Bug, Upload, Database, Cloud } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, Activity, Server, Lock, Eye, Zap, Clock, ArrowRight, FileText, Download, X, ChevronRight, Bug, Database } from 'lucide-react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 const CyberGlobe = React.lazy(() => import('../components/3d/CyberGlobe').then(m => ({ default: m.CyberGlobe })));
 import { StatCard } from '../components/dashboard/StatCard';
@@ -9,7 +9,7 @@ import { ThreatTimeline } from '../components/dashboard/ThreatTimeline';
 import { LiveFeed } from '../components/dashboard/LiveFeed';
 import { useDataset } from '../store/DatasetContext';
 import { useNavigate } from 'react-router-dom';
-import type { CloudProvider, Severity, FeedItem } from '../types/threatTester';
+import type { FeedItem } from '../types/threatTester';
 import { tooltipContentStyle, tooltipCursorStyle, PieActiveShape, AnimatedBarShape } from '../utils/chartConfig';
 
 const containerVariants = {
@@ -290,7 +290,6 @@ function getTimelineFromFindings(findings: { id: string; severity: string; threa
     '16:00': '4 PM', '18:00': '6 PM', '20:00': '8 PM', '22:00': '10 PM', '24:00': 'Midnight',
   };
 
-  const severities = ['Critical', 'High', 'Medium', 'Low'];
   const totalThreats = findings.length;
   let idx = 0;
   for (const h of hourLabels) {
@@ -332,10 +331,9 @@ export const Dashboard = () => {
   const [scanProgress, setScanProgress] = useState<'idle' | 'scanning' | 'done'>('idle');
   const [huntResults, setHuntResults] = useState<{ found: number; time: string } | null>(null);
   const [reportDone, setReportDone] = useState(false);
-  const [expandedCompliance, setExpandedCompliance] = useState<string | null>(null);
   const [globeVisible, setGlobeVisible] = useState(false);
   const globeRef = useRef<HTMLDivElement>(null);
-  const { resources, analysis, datasetName, isAnalyzing } = useDataset();
+  const { resources, analysis, datasetName } = useDataset();
   const navigate = useNavigate();
 
   useEffect(() => {

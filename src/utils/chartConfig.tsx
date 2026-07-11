@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { TooltipProps } from 'recharts';
 
 const TOOLTIP_BG = '#0f1729';
 const TOOLTIP_BORDER = '1px solid rgba(6, 182, 212, 0.3)';
@@ -106,7 +105,6 @@ export function BarActiveShape(props: {
 }) {
   const fill = props.fill ?? '#000'; const x = props.x ?? 0; const y = props.y ?? 0;
   const width = props.width ?? 0; const height = props.height ?? 0;
-  const idx = props.index ?? 0;
   return (
     <g>
       <defs>
