@@ -132,7 +132,7 @@ export const Settings = () => {
     try { return JSON.parse(localStorage.getItem('cyberweb-settings') || '{}').avatar || animatedAvatars[0].url; } catch { return animatedAvatars[0].url; }
   });
   const [displayName, setDisplayName] = useState('Commander Jarvis');
-  const [email, setEmail] = useState('admin@cloudguardian.ai');
+  const [email, setEmail] = useState('admin@cloudcorex.ai');
 
   const [grokKey, setGrokKey] = useState('');
   const [awsKeyId, setAwsKeyId] = useState('');

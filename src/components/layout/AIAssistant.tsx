@@ -100,7 +100,7 @@ export const AIAssistant: React.FC = () => {
       if (controller.signal.aborted) return;
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: 'Error connecting to CloudGuardian Backend. Please ensure the backend server is running.' 
+        content: 'Error connecting to CLOUDCORE X Backend. Please ensure the backend server is running.' 
       }]);
     } finally {
       setIsLoading(false);
