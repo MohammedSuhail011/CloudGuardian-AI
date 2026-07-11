@@ -74,9 +74,17 @@
     overscroll-behavior: contain;
   }
 
-  /* Smooth transitions for ALL interactive elements */
-  a, button, input, select, textarea, [role="button"], [role="link"], [role="tab"] {
+  /* Smooth transitions for interactive elements (exclude buttons — framer-motion handles those) */
+  a, input, select, textarea, [role="button"], [role="link"], [role="tab"] {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Non-motion buttons get smooth color/background transitions only (not transform) */
+  button {
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  }
+  button:active:not([data-framer-motion]) {
+    transform: scale(0.97);
   }
 
   /* Smooth images and SVGs */
@@ -122,16 +130,7 @@
     &:active { transform: translateY(0) scale(0.98); }
   }
 
-  /* Close/X buttons - smooth hover */
-  button:has(svg) {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  button:has(svg):hover {
-    transform: scale(1.08);
-  }
-  button:has(svg):active {
-    transform: scale(0.92);
-  }
+  /* Close/X buttons - smooth color transitions handled above */
 
   .text-glow {
     text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
