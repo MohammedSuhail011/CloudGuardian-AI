@@ -638,15 +638,13 @@ export const Dashboard = () => {
                 return (
                   <motion.button
                     key={action.id}
-                    layoutId={`action-${action.id}`}
                     onClick={() => openModal(action.id)}
                     initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: '-20px' }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, delay: quickActions.indexOf(action) * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
                     whileHover={{ scale: 1.04, y: -4 }}
                     whileTap={{ scale: 0.97 }}
-                    className="p-4 rounded-2xl text-left text-white border border-white/10 hover:border-white/25 transition-all duration-200 shadow-lg relative overflow-hidden group/card active:shadow-inner"
+                    className="p-4 rounded-2xl text-left text-white border border-white/10 hover:border-white/25 shadow-lg relative overflow-hidden group/card"
                     style={{
                       background: `linear-gradient(145deg, ${action.gradient[0]}, ${action.gradient[1]})`,
                       boxShadow: `0 4px 24px ${action.glowColor}40`,
