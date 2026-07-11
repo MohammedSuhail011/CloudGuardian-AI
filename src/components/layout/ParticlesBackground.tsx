@@ -15,17 +15,17 @@ export const ParticlesBackground: React.FC = () => {
     canvas.width = w;
     canvas.height = h;
 
-    const count = 40;
+    const count = 55;
     const particles: { x: number; y: number; vx: number; vy: number; r: number; a: number }[] = [];
 
     for (let i = 0; i < count; i++) {
       particles.push({
         x: Math.random() * w,
         y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        r: Math.random() * 2 + 0.8,
-        a: Math.random() * 0.4 + 0.15,
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: (Math.random() - 0.5) * 0.35,
+        r: Math.random() * 2.2 + 0.6,
+        a: Math.random() * 0.45 + 0.15,
       });
     }
 
