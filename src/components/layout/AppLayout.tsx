@@ -5,6 +5,7 @@ import { Sidebar } from './Sidebar';
 import { TopNav } from './TopNav';
 import { ParticlesBackground } from './ParticlesBackground';
 import { CursorGlow } from './CursorGlow';
+import { AIAssistant } from './AIAssistant';
 
 export const AppLayout: React.FC = () => {
   const location = useLocation();
@@ -30,6 +31,7 @@ export const AppLayout: React.FC = () => {
           </AnimatePresence>
         </main>
       </div>
+      <AIAssistant />
     </div>
   );
 };

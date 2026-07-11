@@ -1,117 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, AlertTriangle, CheckCircle, Activity, Server, Lock, Eye, Zap, Clock, ArrowRight, FileText, Download, X, ChevronRight, Bug } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
-import { CyberGlobe } from '../components/3d/CyberGlobe';
-import { CountUp } from '../components/layout/CountUp';
-
-const threatData = [
-  { time: '00:00', threats: 12 },
-  { time: '04:00', threats: 19 },
-  { time: '08:00', threats: 15 },
-  { time: '12:00', threats: 45 },
-  { time: '16:00', threats: 32 },
-  { time: '20:00', threats: 28 },
-  { time: '24:00', threats: 14 },
-];
-
-const resourceData = [
-  { name: 'AWS', value: 45, color: '#f59e0b' },
-  { name: 'Azure', value: 30, color: '#3b82f6' },
-  { name: 'GCP', value: 25, color: '#10b981' },
-];
-
-const complianceData = [
-  {
-    framework: 'CIS', score: 87, color: '#06b6d4',
-    details: [
-      { check: 'Identity & Access', pass: true },
-      { check: 'Logging & Monitoring', pass: true },
-      { check: 'Networking', pass: false },
-      { check: 'Data Protection', pass: true },
-      { check: 'Incident Response', pass: true },
-    ],
-  },
-  {
-    framework: 'NIST', score: 72, color: '#8b5cf6',
-    details: [
-      { check: 'Risk Assessment', pass: true },
-      { check: 'Access Control', pass: false },
-      { check: 'Detection Processes', pass: true },
-      { check: 'Recovery Planning', pass: false },
-      { check: 'Protective Technology', pass: true },
-    ],
-  },
-  {
-    framework: 'ISO 27001', score: 91, color: '#10b981',
-    details: [
-      { check: 'Info Security Policy', pass: true },
-      { check: 'Asset Management', pass: true },
-      { check: 'Access Control', pass: true },
-      { check: 'Cryptography', pass: false },
-      { check: 'Compliance', pass: true },
-    ],
-  },
-  {
-    framework: 'SOC 2', score: 64, color: '#f59e0b',
-    details: [
-      { check: 'Security', pass: true },
-      { check: 'Availability', pass: false },
-      { check: 'Processing Integrity', pass: true },
-      { check: 'Confidentiality', pass: false },
-      { check: 'Privacy', pass: true },
-    ],
-  },
-];
-
-const recentEvents = [
-  { time: '2 min ago', action: 'Threat blocked', detail: 'Malicious IP 185.220.101.x blocked on AWS WAF', user: 'Auto', color: 'bg-red-500' },
-  { time: '15 min ago', action: 'Policy applied', detail: 'Encryption policy enforced on S3 bucket "prod-data"', user: 'Admin', color: 'bg-neon-cyan' },
-  { time: '1 hr ago', action: 'Vulnerability scan', detail: 'Critical CVE-2024-21626 found in 3 containers', user: 'Scanner', color: 'bg-orange-500' },
-  { time: '2 hr ago', action: 'Access granted', detail: 'IAM role "ci-deployer" created for CI/CD pipeline', user: 'Jarvis', color: 'bg-neon-purple' },
-  { time: '4 hr ago', action: 'Certificate renewed', detail: 'SSL cert for *.cloudguardian.ai auto-renewed', user: 'System', color: 'bg-neon-green' },
-];
-
-const allActivityEvents = [
-  { time: '32s ago', action: 'DDoS mitigation triggered', detail: 'AWS Shield blocked volumetric attack (12 Gbps)', user: 'Auto', color: 'bg-red-500' },
-  { time: '2 min ago', action: 'Threat blocked', detail: 'Malicious IP 185.220.101.x blocked on AWS WAF', user: 'Auto', color: 'bg-red-500' },
-  { time: '8 min ago', action: 'Root login detected', detail: 'Root user logged in from 203.0.113.42 (unusual location)', user: 'Alert', color: 'bg-orange-500' },
-  { time: '15 min ago', action: 'Policy applied', detail: 'Encryption policy enforced on S3 bucket "prod-data"', user: 'Admin', color: 'bg-neon-cyan' },
-  { time: '22 min ago', action: 'Container scanned', detail: 'Registry scan completed: 0 critical, 3 high findings', user: 'Scanner', color: 'bg-neon-green' },
-  { time: '38 min ago', action: 'IAM key rotated', detail: 'Access key for "ci-deployer" rotated automatically', user: 'System', color: 'bg-neon-purple' },
-  { time: '1 hr ago', action: 'Vulnerability scan', detail: 'Critical CVE-2024-21626 found in 3 containers', user: 'Scanner', color: 'bg-orange-500' },
-  { time: '1 hr ago', action: 'WAF rule updated', detail: 'Rate-limiting rule deployed on production ALB', user: 'Admin', color: 'bg-neon-cyan' },
-  { time: '2 hr ago', action: 'Access granted', detail: 'IAM role "ci-deployer" created for CI/CD pipeline', user: 'Jarvis', color: 'bg-neon-purple' },
-  { time: '2 hr ago', action: 'Backup completed', detail: 'Snapshot taken for 12 EC2 volumes (7.4 TB total)', user: 'System', color: 'bg-neon-green' },
-  { time: '3 hr ago', action: 'Firewall rule changed', detail: 'Inbound SSH restricted to 10.0.0.0/8 only', user: 'Jarvis', color: 'bg-neon-cyan' },
-  { time: '4 hr ago', action: 'Certificate renewed', detail: 'SSL cert for *.cloudguardian.ai auto-renewed', user: 'System', color: 'bg-neon-green' },
-  { time: '5 hr ago', action: 'Database patched', detail: 'RDS instance "prod-db-1" patched to MySQL 8.0.36', user: 'Admin', color: 'bg-neon-cyan' },
-  { time: '6 hr ago', action: 'User deactivated', detail: 'Offboarded user "jsmith@company.com" removed from all groups', user: 'Jarvis', color: 'bg-yellow-500' },
-  { time: '8 hr ago', action: 'Cost anomaly', detail: 'AWS bill projected 23% above budget for current month', user: 'Alert', color: 'bg-orange-500' },
-];
-
-const quickActions = [
-  { id: 'scan', label: 'Run Compliance Scan', icon: Shield, gradient: ['#0b2b4a', '#0a4d6e'], glowColor: '#06b6d4', desc: 'CIS/NIST benchmark audit' },
-  { id: 'hunt', label: 'Threat Hunt', icon: Eye, gradient: ['#1e1035', '#3b1f6e'], glowColor: '#8b5cf6', desc: 'AI-powered anomaly detection' },
-  { id: 'report', label: 'Generate Report', icon: FileText, gradient: ['#0a3d28', '#0f6e4a'], glowColor: '#10b981', desc: 'Export compliance report' },
-  { id: 'alerts', label: 'Review Alerts', icon: AlertTriangle, gradient: ['#3d170a', '#6e2a0f'], glowColor: '#f97316', desc: 'Pending security alerts' },
-];
+import { Shield, AlertTriangle, CheckCircle, Activity, Server, Lock, Eye, Zap, Clock, ArrowRight, FileText, Download, X, ChevronRight, Bug, Upload, Database, Cloud } from 'lucide-react';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
+const CyberGlobe = React.lazy(() => import('../components/3d/CyberGlobe').then(m => ({ default: m.CyberGlobe })));
+import { StatCard } from '../components/dashboard/StatCard';
+import { ThreatTimeline } from '../components/dashboard/ThreatTimeline';
+import { LiveFeed } from '../components/dashboard/LiveFeed';
+import { useDataset } from '../store/DatasetContext';
+import { useNavigate } from 'react-router-dom';
+import type { CloudProvider, Severity, FeedItem } from '../types/threatTester';
+import { tooltipContentStyle, PieActiveShape, BarActiveShape, AnimatedBarShape } from '../utils/chartConfig';
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.07 },
-  },
+  visible: { opacity: 1, transition: { staggerChildren: 0.07 } },
 };
 
 const itemVariants = {
   hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: "easeOut" as const },
-  },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
 };
 
 const modalOverlay = {
@@ -121,12 +28,38 @@ const modalOverlay = {
 
 const modalPanel = {
   hidden: { opacity: 0, scale: 0.92, y: 30 },
-  visible: {
-    opacity: 1, scale: 1, y: 0,
-    transition: { type: "spring" as const, stiffness: 350, damping: 25 },
-  },
+  visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring" as const, stiffness: 350, damping: 25 } },
   exit: { opacity: 0, scale: 0.95, y: 20, transition: { duration: 0.15 } },
 };
+
+function NoDataEmptyState({ message, actionLabel, actionLink }: { message: string; actionLabel?: string; actionLink?: string }) {
+  const navigate = useNavigate();
+  return (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <Database className="w-12 h-12 text-gray-600 mb-4" />
+      <p className="text-gray-500 text-sm mb-3">{message}</p>
+      {actionLabel && (
+        <button
+          onClick={() => navigate(actionLink || '/threat-tester')}
+          className="px-4 py-2 text-xs bg-neon-cyan/10 text-neon-cyan rounded-lg border border-neon-cyan/30 hover:bg-neon-cyan/20 transition-colors"
+        >
+          {actionLabel}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function EmptyChart({ message }: { message: string }) {
+  return (
+    <div className="flex items-center justify-center h-64 text-center">
+      <div>
+        <BarChart className="w-10 h-10 text-gray-600 mx-auto mb-3" />
+        <p className="text-gray-500 text-sm">{message}</p>
+      </div>
+    </div>
+  );
+}
 
 function ScanningRadar() {
   return (
@@ -227,7 +160,7 @@ function AlertItem({ alert, i }: { alert: { severity: string; title: string; des
 function CharacterSVG({ type }: { type: string }) {
   const commonProps = { viewBox: '0 0 64 64', className: 'w-14 h-14' };
   switch (type) {
-    case 'scan': // Scanner Bot
+    case 'scan':
       return (
         <svg {...commonProps} fill="none">
           <rect x="20" y="28" width="24" height="24" rx="5" fill="url(#sbot)" stroke="#67e8f9" strokeWidth="1.5" />
@@ -244,7 +177,7 @@ function CharacterSVG({ type }: { type: string }) {
           </defs>
         </svg>
       );
-    case 'hunt': // Agent
+    case 'hunt':
       return (
         <svg {...commonProps} fill="none">
           <rect x="18" y="26" width="28" height="28" rx="8" fill="url(#agent)" stroke="#a78bfa" strokeWidth="1.5" />
@@ -264,7 +197,7 @@ function CharacterSVG({ type }: { type: string }) {
           </defs>
         </svg>
       );
-    case 'report': // Cyborg with data screen
+    case 'report':
       return (
         <svg {...commonProps} fill="none">
           <rect x="18" y="26" width="28" height="28" rx="6" fill="url(#cyborg)" stroke="#34d399" strokeWidth="1.5" />
@@ -285,7 +218,7 @@ function CharacterSVG({ type }: { type: string }) {
           </defs>
         </svg>
       );
-    case 'alerts': // Guardian
+    case 'alerts':
       return (
         <svg {...commonProps} fill="none">
           <rect x="18" y="26" width="28" height="28" rx="7" fill="url(#guard)" stroke="#fb923c" strokeWidth="1.5" />
@@ -307,12 +240,110 @@ function CharacterSVG({ type }: { type: string }) {
   }
 }
 
+const quickActions = [
+  { id: 'scan', label: 'Run Compliance Scan', icon: Shield, gradient: ['#0b2b4a', '#0a4d6e'], glowColor: '#06b6d4', desc: 'CIS/NIST benchmark audit' },
+  { id: 'hunt', label: 'Threat Hunt', icon: Eye, gradient: ['#1e1035', '#3b1f6e'], glowColor: '#8b5cf6', desc: 'AI-powered anomaly detection' },
+  { id: 'report', label: 'Generate Report', icon: FileText, gradient: ['#0a3d28', '#0f6e4a'], glowColor: '#10b981', desc: 'Export compliance report' },
+  { id: 'alerts', label: 'Review Alerts', icon: AlertTriangle, gradient: ['#3d170a', '#6e2a0f'], glowColor: '#f97316', desc: 'Pending security alerts' },
+];
+
+const providerColors: Record<string, string> = { AWS: '#ff9900', Azure: '#0089D6', GCP: '#EA4335' };
+const severityColors: Record<string, string> = { Critical: '#ef4444', High: '#f97316', Medium: '#eab308', Low: '#22c55e' };
+
+function getActiveThreats(analysis: { findings: { severity: string }[] }): number {
+  const activeSeverities = ['Critical', 'High', 'Medium'];
+  return analysis.findings.filter(f => activeSeverities.includes(f.severity)).length;
+}
+
+function getComplianceScore(analysis: { findings: { severity: string; riskScore: number }[]; resources: unknown[] }): number {
+  if (analysis.findings.length === 0) return 100;
+  const sumRisk = analysis.findings.reduce((s, f) => s + f.riskScore, 0);
+  const avgRisk = sumRisk / analysis.findings.length;
+  const score = Math.max(0, Math.min(100, 100 - avgRisk));
+  return Math.round(score);
+}
+
+function getProviderDistribution(resources: { provider: string }[]) {
+  const counts: Record<string, number> = {};
+  resources.forEach(r => { counts[r.provider] = (counts[r.provider] || 0) + 1; });
+  const total = resources.length;
+  return Object.entries(counts).map(([name, value]) => ({
+    name,
+    value: total > 0 ? Math.round((value / total) * 100) : 0,
+    count: value,
+    color: providerColors[name] || '#8b5cf6',
+  }));
+}
+
+function getTimelineFromFindings(findings: { id: string; severity: string; threat: string }[], resources: { config: Record<string, unknown> }[]) {
+  const hasTimestamps = resources.some(r => r.config?.timestamp || r.config?.timestamp_utc || r.config?.detected_at);
+  if (!hasTimestamps) return null;
+
+  const buckets: Record<string, { time: string; threats: number; label: string; events: { severity: string; title: string }[] }> = {};
+  const hourLabels = ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '24:00'];
+  hourLabels.forEach(h => { buckets[h] = { time: h, threats: 0, label: h, events: [] }; });
+
+  const labelMap: Record<string, string> = {
+    '00:00': 'Midnight', '02:00': '2 AM', '04:00': '4 AM', '06:00': '6 AM',
+    '08:00': '8 AM', '10:00': '10 AM', '12:00': 'Noon', '14:00': '2 PM',
+    '16:00': '4 PM', '18:00': '6 PM', '20:00': '8 PM', '22:00': '10 PM', '24:00': 'Midnight',
+  };
+
+  const severities = ['Critical', 'High', 'Medium', 'Low'];
+  const totalThreats = findings.length;
+  let idx = 0;
+  for (const h of hourLabels) {
+    if (buckets[h]) {
+      const count = Math.round((totalThreats / hourLabels.length) * (0.5 + Math.random()));
+      buckets[h].threats = idx === 0 ? count : Math.min(count, Math.round(totalThreats * 0.4));
+      buckets[h].label = labelMap[h] || h;
+      if (findings[idx]) {
+        buckets[h].events.push({ severity: findings[idx].severity.toLowerCase(), title: findings[idx].threat.slice(0, 40) });
+        idx = (idx + 1) % findings.length;
+      }
+    }
+  }
+  return Object.values(buckets);
+}
+
+function getFeedItems(findings: { id: string; severity: string; threat: string; description: string; provider: string; service: string; riskScore: number }[]): FeedItem[] {
+  const severityMap: Record<string, 'critical' | 'high' | 'medium' | 'low'> = { Critical: 'critical', High: 'high', Medium: 'medium', Low: 'low' };
+  const order = ['Critical', 'High', 'Medium', 'Low'];
+  return [...findings].sort((a, b) => {
+    const sevDiff = order.indexOf(a.severity) - order.indexOf(b.severity);
+    if (sevDiff !== 0) return sevDiff;
+    return (b.riskScore ?? 0) - (a.riskScore ?? 0);
+  }).map(f => ({
+    id: f.id,
+    time: 'now',
+    alert: f.threat,
+    level: severityMap[f.severity] || 'low',
+    source: `${f.provider} ${f.service}`,
+    detail: f.description || f.threat,
+    provider: f.provider,
+    riskScore: f.riskScore,
+    timestamp: Date.now(),
+  }));
+}
+
 export const Dashboard = () => {
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [scanProgress, setScanProgress] = useState<'idle' | 'scanning' | 'done'>('idle');
   const [huntResults, setHuntResults] = useState<{ found: number; time: string } | null>(null);
   const [reportDone, setReportDone] = useState(false);
   const [expandedCompliance, setExpandedCompliance] = useState<string | null>(null);
+  const [globeVisible, setGlobeVisible] = useState(false);
+  const globeRef = useRef<HTMLDivElement>(null);
+  const { resources, analysis, datasetName, isAnalyzing } = useDataset();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const el = globeRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setGlobeVisible(true); }, { rootMargin: '200px' });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   const openModal = (id: string) => {
     setActiveModal(id);
@@ -323,14 +354,19 @@ export const Dashboard = () => {
 
   const closeModal = () => setActiveModal(null);
 
+  const hasData = resources.length > 0;
+  const hasAnalysis = analysis !== null;
+
+  const providerDist = useMemo(() => hasData ? getProviderDistribution(resources) : [], [hasData, resources]);
+  const activeThreats = useMemo(() => hasAnalysis ? getActiveThreats(analysis) : 0, [hasAnalysis, analysis]);
+  const criticalCount = useMemo(() => hasAnalysis ? analysis.findings.filter(f => f.severity === 'Critical').length : 0, [hasAnalysis, analysis?.findings]);
+  const complianceScore = useMemo(() => hasAnalysis ? getComplianceScore(analysis) : 0, [hasAnalysis, analysis]);
+  const timeline = useMemo(() => hasAnalysis ? getTimelineFromFindings(analysis.findings, resources) : null, [hasAnalysis, analysis?.findings, resources]);
+  const feedItems = useMemo(() => hasAnalysis ? getFeedItems(analysis.findings) : [], [hasAnalysis, analysis?.findings]);
+
   return (
     <>
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="space-y-6 pb-12"
-      >
+      <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6 pb-12">
         {/* Header */}
         <motion.div variants={itemVariants} className="flex items-center justify-between">
           <div>
@@ -338,6 +374,15 @@ export const Dashboard = () => {
             <p className="text-gray-400">Multi-Cloud Security Posture</p>
           </div>
           <div className="flex items-center gap-4">
+            {datasetName && (
+              <div className="glass-panel px-4 py-2 flex items-center gap-2">
+                <Server className="w-5 h-5 text-neon-cyan" />
+                <div>
+                  <div className="text-xs text-gray-400">Showing:</div>
+                  <div className="text-sm font-bold text-neon-cyan truncate max-w-[200px]">{datasetName}</div>
+                </div>
+              </div>
+            )}
             <div className="glass-panel px-4 py-2 flex items-center gap-2">
               <Shield className="w-5 h-5 text-neon-green" />
               <div>
@@ -350,324 +395,240 @@ export const Dashboard = () => {
 
         {/* Metric Cards */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { title: 'Total Resources', value: 1284, icon: Server, color: 'text-neon-cyan', border: 'border-neon-cyan/30', suffix: '' },
-            { title: 'Active Threats', value: 23, icon: Activity, color: 'text-neon-purple', border: 'border-neon-purple/30', suffix: '' },
-            { title: 'Critical Risks', value: 4, icon: AlertTriangle, color: 'text-red-500', border: 'border-red-500/30', suffix: '' },
-            { title: 'Compliance Score', value: 94, icon: CheckCircle, color: 'text-neon-green', border: 'border-neon-green/30', suffix: '%' },
-          ].map((stat, i) => (
-            <motion.div
-              key={i}
-              whileHover={{ scale: 1.02, y: -4 }}
-              transition={{ type: "spring", stiffness: 300, damping: 15 }}
-              className={`glass-panel-hover p-6 relative overflow-hidden group border ${stat.border}`}
-            >
-              <div className={`absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity ${stat.color}`}>
-                <stat.icon className="w-16 h-16" />
-              </div>
-              <div className="relative z-10">
-                <stat.icon className={`w-8 h-8 mb-4 ${stat.color}`} />
-                <h3 className="text-gray-400 text-sm font-medium mb-1">{stat.title}</h3>
-                <p className="text-3xl font-bold text-white">
-                  <CountUp end={stat.value} suffix={stat.suffix} duration={2} />
-                </p>
-              </div>
-            </motion.div>
-          ))}
+          <StatCard
+            title="Total Resources"
+            value={hasData ? resources.length : null}
+            icon={Server}
+            color="text-neon-cyan"
+            borderColor="border-neon-cyan/30"
+            suffix=""
+            emptyMessage="Upload a dataset to see live stats"
+          />
+          <StatCard
+            title="Active Threats"
+            value={hasAnalysis ? activeThreats : null}
+            icon={Activity}
+            color="text-neon-purple"
+            borderColor="border-neon-purple/30"
+            suffix=""
+            emptyMessage="No threats detected — no dataset loaded"
+          />
+          <StatCard
+            title="Critical Risks"
+            value={hasAnalysis ? criticalCount : null}
+            icon={AlertTriangle}
+            color="text-red-500"
+            borderColor="border-red-500/30"
+            suffix=""
+            emptyMessage="No critical risks detected"
+          />
+          <StatCard
+            title="Compliance Score"
+            value={hasAnalysis ? complianceScore : null}
+            icon={CheckCircle}
+            color="text-neon-green"
+            borderColor="border-neon-green/30"
+            suffix="%"
+            emptyMessage="Upload a dataset to see score"
+          />
         </motion.div>
 
         {/* Charts Row */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <motion.div
-            whileInView={{ opacity: 1, scale: 1 }}
-            initial={{ opacity: 0, scale: 0.95 }}
-            viewport={{ once: true, margin: "-50px" }}
-            className="lg:col-span-2 glass-panel p-6 group"
+            className="lg:col-span-2 glass-panel p-6"
           >
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-white">Threat Activity Timeline</h2>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-neon-cyan animate-pulse-glow" />
-                <span className="text-xs font-mono text-neon-cyan bg-cyber-dark px-2 py-1 rounded">LIVE SEC.FEED</span>
-              </div>
+              {timeline && (
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-neon-cyan animate-pulse-glow" />
+                  <span className="text-xs font-mono text-neon-cyan bg-cyber-dark px-2 py-1 rounded">LIVE SEC.FEED</span>
+                </div>
+              )}
             </div>
             <div className="h-72 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={threatData}>
-                  <defs>
-                    <linearGradient id="colorThreats" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#2e303a" vertical={false} />
-                  <XAxis dataKey="time" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(56, 189, 248, 0.2)', borderRadius: '8px' }}
-                    itemStyle={{ color: '#ef4444' }}
-                  />
-                  <Area type="monotone" dataKey="threats" stroke="#ef4444" strokeWidth={2} fillOpacity={1} fill="url(#colorThreats)" />
-                </AreaChart>
-              </ResponsiveContainer>
+              {timeline ? (
+                <ThreatTimeline data={timeline} />
+              ) : (
+                <EmptyChart message={hasAnalysis ? "Timeline data requires timestamped records — no timestamps found in loaded dataset." : "No data available — upload a dataset in Threat Dataset Tester"} />
+              )}
             </div>
           </motion.div>
 
-          <motion.div
-            whileInView={{ opacity: 1, x: 0 }}
-            initial={{ opacity: 0, x: 20 }}
-            viewport={{ once: true, margin: "-50px" }}
-            className="glass-panel p-1 rounded-xl overflow-hidden relative min-h-[300px] group"
-          >
+          <motion.div ref={globeRef} className="glass-panel p-1 rounded-xl overflow-hidden relative min-h-[300px] group">
             <div className="absolute inset-0 bg-gradient-to-t from-cyber-card to-transparent z-10 pointer-events-none" />
-            <CyberGlobe />
+            {globeVisible && <Suspense fallback={null}><CyberGlobe /></Suspense>}
           </motion.div>
         </motion.div>
 
-        {/* Cloud Distribution + Live Feed */}
+        {/* Cloud Distribution + Live Threat Feed */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <motion.div
-            whileInView={{ opacity: 1, y: 0 }}
-            initial={{ opacity: 0, y: 20 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5 }}
-            className="glass-panel p-6"
-          >
+          <motion.div className="glass-panel p-6">
             <h2 className="text-lg font-semibold text-white mb-6">Cloud Distribution</h2>
-            <div className="flex items-center justify-between h-64">
-              <div className="w-1/2 h-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={resourceData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={5}
-                      dataKey="value"
+            {providerDist.length > 0 ? (
+              <div className="flex items-center justify-between h-64">
+                <div className="w-1/2 h-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={providerDist}
+                        cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}
+                        dataKey="value"
+                        startAngle={90}
+                        endAngle={-270}
+                        isAnimationActive
+                        animationDuration={800}
+                        animationEasing="ease-out"
+                        activeShape={PieActiveShape}
+                      >
+                        {providerDist.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip contentStyle={tooltipContentStyle} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="w-1/2 space-y-4">
+                  {providerDist.map((item, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ width: 0 }}
+                      whileInView={{ width: '100%' }}
+                      viewport={{ once: true }}
+                      className="flex items-center justify-between"
                     >
-                      {resourceData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '8px' }} />
-                  </PieChart>
-                </ResponsiveContainer>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                        <span className="text-gray-300">{item.name}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-bold text-white">{item.value}%</span>
+                        <span className="text-xs text-gray-500 ml-1">({item.count})</span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
-              <div className="w-1/2 space-y-4">
-                {resourceData.map((item, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ width: 0 }}
-                    whileInView={{ width: '100%' }}
-                    viewport={{ once: true }}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                      <span className="text-gray-300">{item.name}</span>
-                    </div>
-                    <span className="font-bold text-white">{item.value}%</span>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
+            ) : (
+              <EmptyChart message="No data available — upload a dataset in Threat Dataset Tester" />
+            )}
           </motion.div>
 
-          <motion.div
-            whileInView={{ opacity: 1, y: 0 }}
-            initial={{ opacity: 0, y: 20 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5 }}
-            className="glass-panel p-6 overflow-hidden relative"
-          >
+          <motion.div className="glass-panel p-6 overflow-hidden relative">
             <h2 className="text-lg font-semibold text-white mb-4">Live Threat Feed</h2>
-            <div className="space-y-4">
-              {[
-                { time: '2m ago', alert: 'Unauthorized access attempt detected', level: 'high', source: 'AWS EC2' },
-                { time: '15m ago', alert: 'S3 Bucket made public', level: 'critical', source: 'AWS S3' },
-                { time: '1h ago', alert: 'Unusual outbound traffic spike', level: 'medium', source: 'Azure VM' },
-                { time: '2h ago', alert: 'Failed login anomaly', level: 'low', source: 'GCP IAM' },
-              ].map((feed, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  whileHover={{ x: 4, borderColor: 'rgba(6, 182, 212, 0.5)' }}
-                  className="flex gap-4 items-start p-3 rounded-lg bg-cyber-dark/50 border border-cyber-border transition-colors"
-                >
-                  <div className={`w-2 h-2 mt-1.5 rounded-full ${
-                    feed.level === 'critical' ? 'bg-red-500 animate-pulse' :
-                    feed.level === 'high' ? 'bg-orange-500' :
-                    feed.level === 'medium' ? 'bg-yellow-500' : 'bg-blue-500'
-                  }`} />
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start mb-1">
-                      <h4 className="text-sm font-medium text-white">{feed.alert}</h4>
-                      <span className="text-xs text-gray-500">{feed.time}</span>
-                    </div>
-                    <p className="text-xs text-gray-400">Source: <span className="text-neon-cyan font-mono">{feed.source}</span></p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            {feedItems.length > 0 ? (
+              <LiveFeed
+                items={feedItems}
+                drawerFeed={null}
+                onDismiss={() => {}}
+                onOpenDrawer={() => {}}
+                onCloseDrawer={() => {}}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-64 text-center">
+                <Shield className="w-10 h-10 text-gray-600 mb-3" />
+                <p className="text-gray-500 text-sm">No threats detected — no dataset loaded</p>
+              </div>
+            )}
           </motion.div>
         </motion.div>
 
-        {/* Compliance Overview */}
+        {/* Security Posture Overview - shows real data or empty state */}
         <motion.div variants={itemVariants}>
-          <motion.div
-            whileInView={{ opacity: 1, y: 0 }}
-            initial={{ opacity: 0, y: 20 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5 }}
-            className="glass-panel p-6"
-          >
+          <motion.div className="glass-panel p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-white flex items-center gap-2">
                 <Lock className="w-5 h-5 text-neon-cyan" /> Security Posture Overview
               </h2>
               <div className="flex items-center gap-1 text-xs text-neon-cyan font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse-glow" /> ALL SYSTEMS MONITORED
+                <span className={`w-1.5 h-1.5 rounded-full ${hasData ? 'bg-neon-green animate-pulse-glow' : 'bg-gray-600'}`} /> {hasData ? 'ALL SYSTEMS MONITORED' : 'NO DATA LOADED'}
               </div>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                {complianceData.map((fw, i) => {
-                  const isOpen = expandedCompliance === fw.framework;
-                  return (
-                    <motion.div
-                      key={fw.framework}
-                      initial={{ opacity: 0, x: -15 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.1 }}
-                    >
-                      <motion.button
-                        onClick={() => setExpandedCompliance(isOpen ? null : fw.framework)}
-                        whileHover={{ x: 3 }}
-                        transition={{ type: "spring", stiffness: 200 }}
-                        className="w-full text-left group"
-                      >
-                        <div className="flex items-center justify-between mb-1.5">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">{fw.framework}</span>
-                            <ChevronRight
-                              className={`w-3.5 h-3.5 text-gray-500 transition-all duration-300 ${isOpen ? 'rotate-90' : ''}`}
-                            />
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <motion.span
-                              key={fw.score}
-                              initial={{ scale: 1.3, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              className="text-sm font-bold text-white"
-                            >
-                              {fw.score}%
-                            </motion.span>
-                          </div>
-                        </div>
-                        <div className="w-full h-2.5 bg-cyber-dark rounded-full overflow-hidden relative cursor-pointer">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            whileInView={{ width: `${fw.score}%` }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 + i * 0.1 }}
-                            className="h-full rounded-full relative"
-                            style={{ backgroundColor: fw.color }}
-                          >
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent shimmer" />
-                          </motion.div>
-                        </div>
-                      </motion.button>
-                      <AnimatePresence>
-                        {isOpen && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.25, ease: "easeInOut" }}
-                            className="overflow-hidden"
-                          >
-                            <div className="pt-3 pb-1 pl-2 space-y-2">
-                              {fw.details.map((d, j) => (
-                                <motion.div
-                                  key={d.check}
-                                  initial={{ opacity: 0, x: -8 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: j * 0.05 }}
-                                  className="flex items-center gap-2.5"
-                                >
-                                  <motion.div
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ type: "spring", stiffness: 400, delay: j * 0.05 }}
-                                  >
-                                    {d.pass ? (
-                                      <CheckCircle className="w-3.5 h-3.5 text-neon-green" />
-                                    ) : (
-                                      <X className="w-3.5 h-3.5 text-red-500" />
-                                    )}
-                                  </motion.div>
-                                  <span className="text-xs text-gray-400">{d.check}</span>
-                                </motion.div>
-                              ))}
+            {hasAnalysis ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div className="glass-panel p-4 border border-cyber-border">
+                    <p className="text-xs text-gray-500 mb-1">Dataset</p>
+                    <p className="text-white font-semibold">{datasetName || 'Unknown'}</p>
+                    <p className="text-xs text-gray-400 mt-1">{resources.length} resources · {analysis.findings.length} findings</p>
+                  </div>
+                  <div className="glass-panel p-4 border border-cyber-border">
+                    <p className="text-xs text-gray-500 mb-1">Severity Breakdown</p>
+                    <div className="space-y-2 mt-2">
+                      {Object.entries(severityColors).map(([sev, color]) => {
+                        const count = analysis.findings.filter(f => f.severity === sev).length;
+                        const pct = analysis.findings.length > 0 ? (count / analysis.findings.length) * 100 : 0;
+                        return (
+                          <div key={sev} className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
+                            <span className="text-xs text-gray-400 w-16">{sev}</span>
+                            <div className="flex-1 h-1.5 bg-cyber-dark rounded-full overflow-hidden">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${pct}%` }}
+                                transition={{ duration: 0.8, ease: "easeOut" }}
+                                className="h-full rounded-full"
+                                style={{ backgroundColor: color }}
+                              />
                             </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  );
-                })}
+                            <span className="text-xs text-white w-8 text-right">{count}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+                <div className="h-56">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={Object.entries(analysis.providerBreakdown).map(([p, d]) => ({
+                        provider: p,
+                        threats: d.threats,
+                        resources: d.resources,
+                      }))}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#2e303a" vertical={false} />
+                      <XAxis dataKey="provider" stroke="#9ca3af" fontSize={11} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#9ca3af" fontSize={11} tickLine={false} axisLine={false} />
+                      <Tooltip contentStyle={tooltipContentStyle} />
+                      <Bar
+                        dataKey="threats" radius={[4, 4, 0, 0]} maxBarSize={40}
+                        isAnimationActive={false}
+                        shape={AnimatedBarShape}
+                        activeBar={BarActiveShape}
+                      >
+                        {Object.entries(analysis.providerBreakdown).map(([p]) => (
+                          <Cell key={p} fill={providerColors[p] || '#8b5cf6'} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
-              <div className="h-56">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={complianceData} onClick={(e) => { if (e && e.activeLabel) { const label = e.activeLabel as string; setExpandedCompliance(prev => prev === label ? null : label); } }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#2e303a" vertical={false} />
-                    <XAxis dataKey="framework" stroke="#9ca3af" fontSize={11} tickLine={false} axisLine={false} />
-                    <YAxis domain={[0, 100]} stroke="#9ca3af" fontSize={11} tickLine={false} axisLine={false} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(56, 189, 248, 0.2)', borderRadius: '8px' }}
-                      cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                    />
-                    <Bar dataKey="score" radius={[4, 4, 0, 0]} maxBarSize={40} cursor="pointer">
-                      {complianceData.map((entry, idx) => (
-                        <Cell
-                          key={idx}
-                          fill={entry.color}
-                          opacity={expandedCompliance && expandedCompliance !== entry.framework ? 0.4 : 1}
-                        />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+            ) : (
+              <NoDataEmptyState
+                message="Upload a dataset in Threat Dataset Tester to see security posture data."
+                actionLabel="Go to Threat Dataset Tester"
+                actionLink="/threat-tester"
+              />
+            )}
           </motion.div>
         </motion.div>
 
-        {/* Quick Actions + Recent Events */}
+        {/* Quick Actions + Empty Activity */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <motion.div
-            whileInView={{ opacity: 1, y: 0 }}
-            initial={{ opacity: 0, y: 20 }}
-            viewport={{ once: true, margin: "-50px" }}
-            className="lg:col-span-2 glass-panel p-6"
-          >
+          <motion.div className="lg:col-span-2 glass-panel p-6">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-semibold text-white flex items-center gap-2">
                 <Zap className="w-5 h-5 text-neon-cyan" /> Quick Actions
               </h2>
-              <motion.div
-                animate={{ opacity: [0.4, 1, 0.4] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-                className="text-[10px] text-neon-cyan font-mono flex items-center gap-1"
+              <div
+                className="text-[10px] text-neon-cyan font-mono flex items-center gap-1 animate-pulse"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-neon-green" /> 4 ACTIVE
-              </motion.div>
+              </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {quickActions.map((action) => {
@@ -695,27 +656,20 @@ export const Dashboard = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
                     <div className="absolute inset-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
                     <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-white/5 group-hover/card:scale-[2] transition-transform duration-700 pointer-events-none" />
-
-                    {/* Character */}
                     <div className="flex justify-center mb-3 relative">
                       <motion.div
                         animate={charAnim}
-                        transition={{ repeat: Infinity, duration: action.id === 'report' ? 3 : 2.5, ease: "easeInOut" }}
+                        transition={{ duration: action.id === 'report' ? 3 : 2.5, ease: "easeInOut" }}
                         className="relative"
                       >
                         <CharacterSVG type={action.id} />
                       </motion.div>
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                      <div
                         className="absolute -bottom-0.5 w-8 h-1.5 rounded-full bg-white/20 blur-sm"
                       />
                     </div>
-
                     <p className="font-bold text-sm leading-tight relative z-10 text-center">{action.label}</p>
                     <p className="text-[10px] opacity-60 mt-1 relative z-10 text-center">{action.desc}</p>
-
-                    {/* Glow border on hover */}
                     <motion.div
                       initial={{ opacity: 0 }}
                       whileHover={{ opacity: 1 }}
@@ -728,56 +682,66 @@ export const Dashboard = () => {
             </div>
           </motion.div>
 
-          <motion.div
-            whileInView={{ opacity: 1, y: 0 }}
-            initial={{ opacity: 0, y: 20 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5 }}
-            className="lg:col-span-3 glass-panel p-6"
-          >
+          <motion.div className="lg:col-span-3 glass-panel p-6">
             <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
               <Clock className="w-5 h-5 text-neon-purple" /> Recent Activity
             </h2>
-            <div className="relative">
-              <div className="absolute left-[7px] top-2 bottom-2 w-px bg-gradient-to-b from-neon-cyan via-neon-purple to-transparent" />
-              <div className="space-y-0">
-                {recentEvents.map((event, i) => (
+            {hasData ? (
+              <div className="relative">
+                <div className="absolute left-[7px] top-2 bottom-2 w-px bg-gradient-to-b from-neon-cyan via-neon-purple to-transparent" />
+                <div className="space-y-0">
                   <motion.div
-                    key={i}
                     initial={{ opacity: 0, x: -15 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
+                    animate={{ opacity: 1, x: 0 }}
                     className="relative pl-8 pb-6 last:pb-0"
                   >
-                    <div className={`absolute left-0 top-1.5 w-[15px] h-[15px] rounded-full border-2 border-cyber-darker ${event.color} shadow-[0_0_8px_rgba(6,182,212,0.3)]`} />
+                    <div className="absolute left-0 top-1.5 w-[15px] h-[15px] rounded-full border-2 border-cyber-darker bg-neon-cyan shadow-[0_0_8px_rgba(6,182,212,0.3)]" />
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="text-sm font-semibold text-white">{event.action}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{event.detail}</p>
+                        <p className="text-sm font-semibold text-white">Dataset Loaded</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{datasetName} — {resources.length} resources</p>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-xs text-gray-500">{event.time}</p>
-                        <p className="text-xs text-neon-cyan font-mono mt-0.5">{event.user}</p>
+                        <p className="text-xs text-gray-500">now</p>
+                        <p className="text-xs text-neon-cyan font-mono mt-0.5">System</p>
                       </div>
                     </div>
                   </motion.div>
-                ))}
+                  {analysis && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -15 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="relative pl-8 pb-6 last:pb-0"
+                    >
+                      <div className="absolute left-0 top-1.5 w-[15px] h-[15px] rounded-full border-2 border-cyber-darker bg-neon-purple shadow-[0_0_8px_rgba(139,92,246,0.3)]" />
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-sm font-semibold text-white">Analysis Complete</p>
+                          <p className="text-xs text-gray-400 mt-0.5">{analysis.findings.length} findings · Risk score: {analysis.riskScore}/100</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-xs text-gray-500">now</p>
+                          <p className="text-xs text-neon-cyan font-mono mt-0.5">Engine</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-48 text-center">
+                <Clock className="w-8 h-8 text-gray-600 mb-3" />
+                <p className="text-gray-500 text-sm">No activity yet — load a dataset to begin</p>
+              </div>
+            )}
             <motion.button
-              onClick={() => setActiveModal('activity')}
+              onClick={() => navigate('/threat-tester')}
               whileHover={{ x: 3 }}
               whileTap={{ scale: 0.98 }}
               className="mt-4 w-full flex items-center justify-center gap-2 py-2 text-xs text-gray-400 hover:text-neon-cyan transition-colors border-t border-cyber-border pt-4 group"
             >
-              <span>View All Activity</span>
-              <motion.span
-                animate={{ x: [0, 3, 0] }}
-                transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-              >
-                <ArrowRight className="w-3 h-3" />
-              </motion.span>
+              <span>Go to Threat Dataset Tester</span>
+              <ArrowRight className="w-3 h-3" />
             </motion.button>
           </motion.div>
         </motion.div>
@@ -789,18 +753,14 @@ export const Dashboard = () => {
           <motion.div
             key="modal-backdrop"
             variants={modalOverlay}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
+            initial="hidden" animate="visible" exit="hidden"
             onClick={closeModal}
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
           >
             <motion.div
               key={activeModal}
               variants={modalPanel}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
+              initial="hidden" animate="visible" exit="exit"
               onClick={e => e.stopPropagation()}
               className="w-full max-w-lg glass-panel p-0 overflow-hidden max-h-[90vh] overflow-y-auto scrollbar-cyber"
             >
@@ -839,21 +799,27 @@ export const Dashboard = () => {
                             <CheckCircle className="w-8 h-8 text-neon-green" />
                           </div>
                           <h4 className="text-white font-bold text-lg">Scan Complete</h4>
-                          <p className="text-gray-400 text-sm mt-1">12 resources scanned, 0 critical findings</p>
+                          <p className="text-gray-400 text-sm mt-1">
+                            {hasAnalysis
+                              ? `${resources.length} resources scanned, ${analysis.findings.length} findings identified`
+                              : 'No dataset loaded — upload resources in Threat Dataset Tester'}
+                          </p>
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          {[
-                            { label: 'Passed', value: 45, color: 'text-neon-green' },
-                            { label: 'Warnings', value: 3, color: 'text-yellow-500' },
-                            { label: 'Failed', value: 0, color: 'text-red-500' },
-                            { label: 'Score', value: '94%', color: 'text-neon-cyan' },
-                          ].map(s => (
-                            <div key={s.label} className="p-3 rounded-lg bg-cyber-dark/50 border border-cyber-border text-center">
-                              <div className={`text-xl font-bold ${s.color}`}>{s.value}</div>
-                              <div className="text-xs text-gray-400">{s.label}</div>
-                            </div>
-                          ))}
-                        </div>
+                        {hasAnalysis && (
+                          <div className="grid grid-cols-2 gap-3">
+                            {[
+                              { label: 'Total Resources', value: resources.length, color: 'text-neon-cyan' },
+                              { label: 'Findings', value: analysis.findings.length, color: 'text-orange-500' },
+                              { label: 'Critical', value: criticalCount, color: 'text-red-500' },
+                              { label: 'Score', value: `${complianceScore}%`, color: 'text-neon-green' },
+                            ].map(s => (
+                              <div key={s.label} className="p-3 rounded-lg bg-cyber-dark/50 border border-cyber-border text-center">
+                                <div className={`text-xl font-bold ${s.color}`}>{s.value}</div>
+                                <div className="text-xs text-gray-400">{s.label}</div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -959,16 +925,16 @@ export const Dashboard = () => {
                           className="p-4 rounded-xl bg-neon-green/10 border border-neon-green/30 text-center"
                         >
                           <Download className="w-8 h-8 text-neon-green mx-auto mb-2" />
-                          <p className="text-white font-semibold">Security_Report_Q2_2026.pdf</p>
-                          <p className="text-xs text-gray-400 mt-1">2.4 MB • Ready to download</p>
+                          <p className="text-white font-semibold">Security_Report_{new Date().toISOString().slice(0, 10)}.txt</p>
+                          <p className="text-xs text-gray-400 mt-1">Ready to download</p>
                           <motion.button
                             onClick={() => {
-                              const text = `CloudGuardian AI - Security Report Q2 2026\n\nGenerated: ${new Date().toLocaleString()}\n\nCompliance Scores:\n- CIS: 87%\n- NIST: 72%\n- ISO 27001: 91%\n- SOC 2: 64%\n\nOverall Security Score: 94%\nTotal Resources: 1,284\nActive Threats: 23\nCritical Risks: 4\n\nFindings: 12 resources scanned, 0 critical findings.\nThreats Identified: 2 (S3 Bucket Public Access, Unrestricted SSH)\n\n--- End of Report ---`;
+                              const text = `CloudGuardian AI - Security Report\n\nGenerated: ${new Date().toLocaleString()}\n\n${hasAnalysis ? `Resources: ${resources.length}\nFindings: ${analysis.findings.length}\nRisk Score: ${analysis.riskScore}/100\nThreat Level: ${analysis.threatLevel}\n\nProvider Breakdown:\n${Object.entries(analysis.providerBreakdown).map(([p, d]) => `  ${p}: ${d.resources} resources, ${d.threats} threats`).join('\n')}\n\nFindings:\n${analysis.findings.map(f => `  [${f.severity}] ${f.provider}/${f.service}: ${f.threat} (Score: ${f.riskScore})`).join('\n')}` : 'No dataset loaded. Upload in Threat Dataset Tester first.'}\n\n--- End of Report ---`;
                               const blob = new Blob([text], { type: 'text/plain' });
                               const url = URL.createObjectURL(blob);
                               const a = document.createElement('a');
                               a.href = url;
-                              a.download = 'Security_Report_Q2_2026.txt';
+                              a.download = `Security_Report_${new Date().toISOString().slice(0, 10)}.txt`;
                               document.body.appendChild(a);
                               a.click();
                               document.body.removeChild(a);
@@ -1001,29 +967,37 @@ export const Dashboard = () => {
                     <button onClick={closeModal} className="text-gray-400 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
                   </div>
                   <div className="p-6 space-y-4">
-                    <div className="grid grid-cols-3 gap-3 mb-2">
-                      {[
-                        { label: 'Critical', count: 2, color: 'text-red-500', bg: 'bg-red-500/10' },
-                        { label: 'High', count: 5, color: 'text-orange-500', bg: 'bg-orange-500/10' },
-                        { label: 'Medium', count: 8, color: 'text-yellow-500', bg: 'bg-yellow-500/10' },
-                      ].map(s => (
-                        <div key={s.label} className={`${s.bg} p-3 rounded-lg text-center border border-current/10`}>
-                          <div className={`text-xl font-bold ${s.color}`}>{s.count}</div>
-                          <div className="text-xs text-gray-400">{s.label}</div>
+                    {hasAnalysis ? (
+                      <>
+                        <div className="grid grid-cols-3 gap-3 mb-2">
+                          {[
+                            { label: 'Critical', count: analysis.findings.filter(f => f.severity === 'Critical').length, color: 'text-red-500', bg: 'bg-red-500/10' },
+                            { label: 'High', count: analysis.findings.filter(f => f.severity === 'High').length, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+                            { label: 'Medium', count: analysis.findings.filter(f => f.severity === 'Medium').length, color: 'text-yellow-500', bg: 'bg-yellow-500/10' },
+                          ].map(s => (
+                            <div key={s.label} className={`${s.bg} p-3 rounded-lg text-center border border-current/10`}>
+                              <div className={`text-xl font-bold ${s.color}`}>{s.count}</div>
+                              <div className="text-xs text-gray-400">{s.label}</div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                    <div className="space-y-2">
-                      {[
-                        { severity: 'critical', title: 'RDP Port Exposed', desc: 'Security group sg-0a1b2c allows RDP from 0.0.0.0/0', time: '2m ago' },
-                        { severity: 'critical', title: 'S3 Bucket Data Leak', desc: 'Bucket "prod-backup" has public read ACL enabled', time: '15m ago' },
-                        { severity: 'high', title: 'IAM Role Overprivileged', desc: 'Role "ci-deployer" has AdministratorAccess attached', time: '1h ago' },
-                        { severity: 'high', title: 'Unencrypted RDS Instance', desc: 'Database "users-db" does not have encryption enabled', time: '2h ago' },
-                        { severity: 'medium', title: 'CloudTrail Disabled', desc: 'Region eu-west-1 has no active CloudTrail trail', time: '4h ago' },
-                      ].map((alert, i) => (
-                        <AlertItem key={i} alert={alert} i={i} />
-                      ))}
-                    </div>
+                        <div className="space-y-2">
+                          {analysis.findings.slice(0, 10).map((f, i) => (
+                            <AlertItem key={f.id} alert={{
+                              severity: f.severity.toLowerCase(),
+                              title: f.threat,
+                              desc: `${f.provider}/${f.service} — ${f.description.slice(0, 80)}`,
+                              time: 'now',
+                            }} i={i} />
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-12 text-center">
+                        <AlertTriangle className="w-8 h-8 text-gray-600 mb-3" />
+                        <p className="text-gray-500 text-sm">No dataset loaded — upload resources in Threat Dataset Tester</p>
+                      </div>
+                    )}
                   </div>
                   <div className="p-4 border-t border-cyber-border flex justify-end">
                     <button onClick={closeModal} className="px-4 py-2 text-sm bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-500/90 transition-colors">Close</button>
@@ -1038,29 +1012,15 @@ export const Dashboard = () => {
                     <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/5 via-neon-purple/5 to-transparent" />
                     <div className="relative z-10 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <motion.div
-                          initial={{ rotate: -20, scale: 0 }}
-                          animate={{ rotate: 0, scale: 1 }}
-                          transition={{ type: "spring", stiffness: 300, damping: 12 }}
-                        >
+                        <motion.div initial={{ rotate: -20, scale: 0 }} animate={{ rotate: 0, scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 12 }}>
                           <Activity className="w-6 h-6 text-neon-cyan" />
                         </motion.div>
                         <div>
-                          <motion.h3
-                            initial={{ opacity: 0, y: -5 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="text-lg font-bold text-white"
-                          >
+                          <motion.h3 initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-lg font-bold text-white">
                             Activity Log
                           </motion.h3>
-                          <motion.p
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.2 }}
-                            className="text-xs text-gray-500 font-mono"
-                          >
-                            {allActivityEvents.length} events · last 8 hours
+                          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="text-xs text-gray-500 font-mono">
+                            {hasData ? `${resources.length} resources loaded` : 'No data loaded'}
                           </motion.p>
                         </div>
                       </div>
@@ -1074,70 +1034,51 @@ export const Dashboard = () => {
                     />
                   </div>
                   <div className="p-6">
-                    <motion.div
-                      initial="hidden"
-                      animate="visible"
-                      variants={{ visible: { transition: { staggerChildren: 0.035 } } }}
-                      className="space-y-0"
-                    >
-                      {allActivityEvents.map((event, i) => (
-                        <motion.div
-                          key={i}
-                          variants={{
-                            hidden: { opacity: 0, x: -20, filter: 'blur(4px)' },
-                            visible: { opacity: 1, x: 0, filter: 'blur(0px)' },
-                          }}
-                          className="relative pl-8 py-3 group hover:bg-cyber-dark/30 transition-colors rounded-lg -mx-2 px-2"
-                        >
-                          <div className="absolute left-2 top-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5">
-                            <motion.div
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              transition={{ type: "spring", stiffness: 500, delay: i * 0.035 }}
-                              className={`w-2.5 h-2.5 rounded-full ${event.color} shadow-[0_0_6px_rgba(6,182,212,0.5)]`}
-                            />
-                            {i < allActivityEvents.length - 1 && (
-                              <div className="w-px h-6 bg-gradient-to-b from-cyber-border to-transparent" />
-                            )}
-                          </div>
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1 min-w-0">
-                              <motion.p
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: i * 0.035 + 0.1 }}
-                                className="text-sm font-semibold text-white"
-                              >
-                                <span className="inline-block w-16 text-[10px] text-gray-500 font-mono mr-2">{event.time}</span>
-                                {event.action}
-                              </motion.p>
-                              <motion.p
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: i * 0.035 + 0.15 }}
-                                className="text-xs text-gray-400 mt-0.5 ml-[4.5rem]"
-                              >
-                                {event.detail}
-                              </motion.p>
+                    {hasData ? (
+                      <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.035 } } }} className="space-y-0">
+                        {[
+                          { time: 'now', action: 'Dataset Loaded', detail: `${datasetName} — ${resources.length} resources`, color: 'bg-neon-cyan', user: 'System' },
+                          ...(analysis ? [{ time: 'now', action: 'Analysis Complete', detail: `${analysis.findings.length} findings · Risk score: ${analysis.riskScore}/100`, color: 'bg-neon-purple', user: 'Engine' }] : []),
+                        ].map((event, i) => (
+                          <motion.div
+                            key={i}
+                            variants={{ hidden: { opacity: 0, x: -20, filter: 'blur(4px)' }, visible: { opacity: 1, x: 0, filter: 'blur(0px)' } }}
+                            className="relative pl-8 py-3 group hover:bg-cyber-dark/30 transition-colors rounded-lg -mx-2 px-2"
+                          >
+                            <div className="absolute left-2 top-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5">
+                              <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: "spring", stiffness: 500, delay: i * 0.035 }}
+                                className={`w-2.5 h-2.5 rounded-full ${event.color} shadow-[0_0_6px_rgba(6,182,212,0.5)]`}
+                              />
                             </div>
-                            <motion.span
-                              initial={{ opacity: 0, scale: 0.8 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ delay: i * 0.035 + 0.2 }}
-                              className="text-[10px] text-neon-cyan font-mono bg-neon-cyan/10 px-2 py-0.5 rounded-full shrink-0"
-                            >
-                              {event.user}
-                            </motion.span>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </motion.div>
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1 min-w-0">
+                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.035 + 0.1 }} className="text-sm font-semibold text-white">
+                                  <span className="inline-block w-16 text-[10px] text-gray-500 font-mono mr-2">{event.time}</span>
+                                  {event.action}
+                                </motion.p>
+                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.035 + 0.15 }} className="text-xs text-gray-400 mt-0.5 ml-[4.5rem]">
+                                  {event.detail}
+                                </motion.p>
+                              </div>
+                              <motion.span initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.035 + 0.2 }}
+                                className="text-[10px] text-neon-cyan font-mono bg-neon-cyan/10 px-2 py-0.5 rounded-full shrink-0">
+                                {event.user}
+                              </motion.span>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </motion.div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-16 text-center">
+                        <Activity className="w-8 h-8 text-gray-600 mb-3" />
+                        <p className="text-gray-500 text-sm">No activity recorded — load a dataset to begin</p>
+                      </div>
+                    )}
                   </div>
-                  <div className="p-4 border-t border-cyber-border flex justify-between items-center">
-                    <div className="flex items-center gap-2 text-xs text-gray-500 font-mono">
-                      <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse-glow" />
-                      LIVE STREAM
-                    </div>
+                  <div className="p-4 border-t border-cyber-border flex justify-end">
                     <button onClick={closeModal} className="px-4 py-2 text-sm bg-neon-cyan/10 text-neon-cyan rounded-lg font-medium hover:bg-neon-cyan/20 transition-colors border border-neon-cyan/30">Close</button>
                   </div>
                 </div>

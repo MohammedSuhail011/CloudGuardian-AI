@@ -226,15 +226,17 @@ export const Settings = () => {
                       <Check className="w-3 h-3" /> Active
                     </div>
                   )}
-                </motion.div>
-              ))}
+              </motion.div>
+            ))}
             </div>
           </motion.div>
         );
       case 'Notifications':
         return (
           <motion.div key="notif" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
-            {notifications.map((pref, i) => (
+            {notifications.map((pref, i) => {
+              const Icon = pref.icon;
+              return (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, x: -10 }}
@@ -244,7 +246,7 @@ export const Settings = () => {
               >
                 <div className="flex items-center gap-4">
                   <div className="p-2 rounded bg-cyber-dark border border-cyber-border">
-                    <pref.icon className="w-5 h-5 text-neon-cyan" />
+                    <Icon className="w-5 h-5 text-neon-cyan" />
                   </div>
                   <div>
                     <h4 className="text-white font-medium">{pref.title}</h4>
@@ -258,7 +260,8 @@ export const Settings = () => {
                   <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${pref.active ? 'left-7' : 'left-1'}`} />
                 </button>
               </motion.div>
-            ))}
+              );
+            })}
           </motion.div>
         );
       case 'Cloud Accounts':

@@ -348,49 +348,92 @@ export function parseCSV(text: string): CloudResource[] {
         service: row.service || row['service type'] || 'Unknown',
         region: row.region || 'us-east-1',
         tags: {},
-        config: row,
+        config: coerceConfigValues(row as unknown as Record<string, unknown>),
       });
     } catch { /* skip invalid rows */ }
   }
   return resources;
 }
 
+function coerceConfigValues(config: Record<string, unknown>): Record<string, unknown> {
+  const coerced: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(config)) {
+    if (typeof value === 'string') {
+      if (value.toLowerCase() === 'true') coerced[key] = true;
+      else if (value.toLowerCase() === 'false') coerced[key] = false;
+      else if (value === '' || value === 'null' || value === 'undefined') coerced[key] = undefined;
+      else if (!isNaN(Number(value)) && value.trim() !== '') coerced[key] = Number(value);
+      else coerced[key] = value;
+    } else {
+      coerced[key] = value;
+    }
+  }
+  return coerced;
+}
+
 export function parseJSON(text: string): CloudResource[] {
   const data = JSON.parse(text);
   const arr = Array.isArray(data) ? data : data.resources || data.data || [];
-  return arr.map((item: Record<string, unknown>, i: number) => ({
-    id: String(item.id || item.resourceId || item.ResourceId || `resource-${i}`),
-    name: String(item.name || item.resourceName || item.ResourceName || item.Name || `Resource ${i}`),
-    provider: (item.provider || item.cloudProvider || item.Provider || 'AWS') as CloudProvider,
-    service: String(item.service || item.serviceType || item.Service || item.resourceType || item.ResourceType || 'Unknown'),
-    region: String(item.region || item.Region || item.location || item.Location || 'us-east-1'),
-    tags: (item.tags as Record<string, string>) || {},
-    config: item as Record<string, unknown>,
-  }));
+  return normalizeResources(arr);
+}
+
+export function parseJSONL(text: string): CloudResource[] {
+  const lines = text.split('\n').filter(line => line.trim().length > 0);
+  const items: Record<string, unknown>[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    try {
+      const parsed = JSON.parse(lines[i]);
+      if (parsed && typeof parsed === 'object') {
+        items.push(parsed);
+      }
+    } catch {
+      console.warn(`JSONL line ${i + 1} skipped: invalid JSON`);
+    }
+  }
+  return normalizeResources(items);
+}
+
+function normalizeResources(items: Record<string, unknown>[]): CloudResource[] {
+  return items.map((item, i) => {
+    const itemConfig = (item.config as Record<string, unknown>) || {};
+    const flatConfig = { ...item };
+    delete flatConfig.id; delete flatConfig.name; delete flatConfig.provider;
+    delete flatConfig.service; delete flatConfig.region; delete flatConfig.tags; delete flatConfig.config;
+    const mergedConfig = { ...flatConfig, ...itemConfig };
+    return {
+      id: String(item.id || item.resourceId || item.ResourceId || item.resource_id || `resource-${i}`),
+      name: String(item.name || item.resourceName || item.ResourceName || item.resource_name || item.Name || `Resource ${i}`),
+      provider: (item.provider || item.cloudProvider || item.cloud_provider || item.Provider || 'AWS') as CloudProvider,
+      service: String(item.service || item.serviceType || item.category || item.Service || item.resourceType || item.ResourceType || 'Unknown'),
+      region: String(item.region || item.Region || item.location || item.Location || 'us-east-1'),
+      tags: (item.tags as Record<string, string>) || {},
+      config: coerceConfigValues(mergedConfig),
+    };
+  });
 }
 
 export function analyzeResources(resources: CloudResource[]): AnalysisResult {
   const findings: ThreatFinding[] = [];
   const startTime = performance.now();
 
-  for (const resource of resources) {
-    const detectedProvider = detectProvider(resource);
-    if (detectedProvider) resource.provider = detectedProvider;
+  for (const res of resources) {
+    const provider = detectProvider(res) || res.provider;
+    const service = res.service || 'Unknown';
 
     for (const rule of threatRules) {
-      if (!rule.provider.includes(resource.provider)) continue;
-      if (rule.service !== resource.service && rule.service !== 'IAM') continue;
-      if (rule.service === 'IAM' && !resource.service.includes('IAM') && !resource.service.includes('Azure AD')) continue;
+      if (!rule.provider.includes(provider)) continue;
+      if (rule.service !== service && rule.service !== 'IAM') continue;
+      if (rule.service === 'IAM' && !service.includes('IAM') && !service.includes('Azure AD')) continue;
 
       try {
-        if (rule.detect(resource)) {
+        if (rule.detect(res)) {
           const riskScore = rule.severity === 'Critical' ? 30 : rule.severity === 'High' ? 20 : rule.severity === 'Medium' ? 10 : 5;
           findings.push({
             id: `threat-${findings.length + 1}`,
-            resourceId: resource.id,
-            resourceName: resource.name,
-            provider: resource.provider,
-            service: resource.service,
+            resourceId: res.id,
+            resourceName: res.name,
+            provider,
+            service,
             threat: rule.threat,
             severity: rule.severity,
             riskScore,
@@ -409,13 +452,52 @@ export function analyzeResources(resources: CloudResource[]): AnalysisResult {
     }
   }
 
+  // Fallback: if no threat rules matched, check for direct vulnerability data in config
+  if (findings.length === 0) {
+    for (const res of resources) {
+      const cfg = res.config;
+      const sev = cfg.severity as string | undefined;
+      const score = (cfg.risk_score ?? cfg.riskScore) as number | undefined;
+      if (sev && typeof sev === 'string' && ['Critical', 'High', 'Medium', 'Low'].includes(sev)) {
+        const provider = (cfg.cloud_provider || cfg.cloudProvider || res.provider || 'AWS') as CloudProvider;
+        const service = (cfg.category || cfg.serviceType || res.service || 'Unknown') as string;
+        const cve = (cfg.source_cve || cfg.cve_id || '') as string;
+        findings.push({
+          id: `vuln-${findings.length + 1}`,
+          resourceId: res.id,
+          resourceName: res.name,
+          provider,
+          service,
+          threat: (cfg.threat || (cfg.description as string)?.slice(0, 80) || 'Vulnerability detected') as string,
+          severity: sev as Severity,
+          riskScore: typeof score === 'number' ? Math.min(100, Math.round(score)) : 25,
+          status: 'Open',
+          recommendation: (cfg.recommendation || 'Investigate and remediate') as string,
+          description: (cfg.description || '') as string,
+          cvssScore: (cfg.cvss_score ?? cfg.cvssScore ?? 5) as number,
+          danger: (cfg.danger || `Security issue in ${provider} ${service}`) as string,
+          attackerActions: Array.isArray(cfg.scoring_factors)
+            ? (cfg.scoring_factors as string[])
+            : typeof cfg.scoring_factors === 'string'
+              ? [cfg.scoring_factors as string]
+              : ['Review configuration'],
+          mitreMapping: cve ? `CVE: ${cve}` : '',
+          remediationSteps: Array.isArray(cfg.remediationSteps)
+            ? (cfg.remediationSteps as string[])
+            : ['Investigate and apply fix'],
+          fixDifficulty: (cfg.fixDifficulty || 'Medium') as 'Easy' | 'Medium' | 'Hard',
+        });
+      }
+    }
+  }
+
   const duration = performance.now() - startTime;
 
   const providerSet: CloudProvider[] = ['AWS', 'Azure', 'GCP'];
   const providerBreakdown = {} as Record<CloudProvider, { resources: number; threats: number }>;
   providerSet.forEach(p => {
     providerBreakdown[p] = {
-      resources: resources.filter(r => r.provider === p).length,
+      resources: resources.filter(r => (r.provider || detectProvider(r)) === p).length,
       threats: findings.filter(f => f.provider === p).length,
     };
   });

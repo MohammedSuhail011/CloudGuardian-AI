@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutDashboard, Cloud, ShieldAlert, FileText, Settings, Server, Box, Shield, ChevronLeft, ChevronRight, Sparkles, Cpu, Bug } from 'lucide-react';
 
@@ -21,6 +21,28 @@ export const Sidebar: React.FC = () => {
   const [expandOrigin, setExpandOrigin] = useState({ x: 0, y: 0 });
   const profileRef = useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const activeIndex = navItems.findIndex(item => {
+    if (item.path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(item.path);
+  });
+  const activeItemRef = useRef<HTMLAnchorElement>(null);
+  const [sliderStyle, setSliderStyle] = useState({ top: 0, height: 0 });
+  const navRef = useRef<HTMLDivElement>(null);
+
+  const updateSlider = useCallback(() => {
+    if (activeIndex >= 0 && navRef.current) {
+      const activeEl = navRef.current.querySelector(`[data-nav-index="${activeIndex}"]`) as HTMLElement | null;
+      if (activeEl) {
+        const navRect = navRef.current.getBoundingClientRect();
+        const elRect = activeEl.getBoundingClientRect();
+        setSliderStyle({
+          top: elRect.top - navRect.top + elRect.height / 2 - 14,
+          height: 28,
+        });
+      }
+    }
+  }, [activeIndex]);
 
   useEffect(() => {
     const handleAvatarChange = (e: Event) => {
@@ -30,6 +52,11 @@ export const Sidebar: React.FC = () => {
     window.addEventListener('avatarChange', handleAvatarChange);
     return () => window.removeEventListener('avatarChange', handleAvatarChange);
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(updateSlider, 100);
+    return () => clearTimeout(timer);
+  }, [updateSlider, location.pathname]);
 
   const handleProfileClick = () => {
     if (profileRef.current) {
@@ -73,11 +100,28 @@ export const Sidebar: React.FC = () => {
               {/* Center shield icon */}
               <Shield className="absolute w-4 h-4 text-white drop-shadow-[0_0_4px_rgba(6,182,212,0.8)]" />
             </div>
-            <div className="relative">
-              <span className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan via-white to-neon-purple animate-pulse-glow" style={{ animationDuration: '3s' }}>
+            <div className="relative group">
+              {/* Glitch layers (visible on hover) */}
+              <span className="absolute inset-0 font-bold text-xl text-neon-cyan opacity-0 group-hover:opacity-70 group-hover:translate-x-[2px] group-hover:-translate-y-[1px] transition-all duration-100 pointer-events-none select-none [clip-path:inset(20%_0_40%_0)]" aria-hidden>
                 CloudGuardian AI
               </span>
-              <div className="absolute -bottom-1 left-0 right-0 h-[2px] bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-cyan bg-[length:200%_100%] animate-glow-line rounded-full opacity-60" />
+              <span className="absolute inset-0 font-bold text-xl text-neon-purple opacity-0 group-hover:opacity-70 group-hover:-translate-x-[2px] group-hover:translate-y-[1px] transition-all duration-100 pointer-events-none select-none [clip-path:inset(60%_0_0%_0)]" aria-hidden>
+                CloudGuardian AI
+              </span>
+              {/* Main text */}
+              <span className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan via-white to-neon-purple relative inline-block">
+                CloudGuardian AI
+                {/* Scan line sweeping across text */}
+                <span className="absolute inset-0 overflow-hidden pointer-events-none [mask-image:linear-gradient(black,black)] [background:linear-gradient(90deg,transparent,rgba(6,182,212,0.4),transparent)] [background-size:40%_100%] animate-[shimmer_3s_ease-in-out_infinite]" />
+              </span>
+              {/* Underline with traveling glow */}
+              <div className="relative h-[2px] mt-1 rounded-full overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-cyan bg-[length:200%_100%] animate-[glow-line_3s_linear_infinite] opacity-60" />
+                <div className="absolute top-0 left-0 h-full w-8 bg-gradient-to-r from-transparent via-white/80 to-transparent animate-[travel_2s_ease-in-out_infinite]" />
+              </div>
+              {/* Floating particles around text */}
+              <span className="absolute -top-1 -right-1 w-1 h-1 rounded-full bg-neon-cyan animate-pulse shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
+              <span className="absolute -bottom-1 left-4 w-0.5 h-0.5 rounded-full bg-neon-purple animate-pulse shadow-[0_0_6px_rgba(139,92,246,0.8)]" style={{ animationDelay: '0.5s' }} />
             </div>
           </motion.div>
         ) : (
@@ -100,17 +144,30 @@ export const Sidebar: React.FC = () => {
         </button>
       </div>
 
-      <nav className="flex-1 py-8 px-4 flex flex-col gap-2 overflow-y-auto scrollbar-cyber">
-        {navItems.map((item) => {
+      <nav ref={navRef} className="flex-1 py-8 px-4 flex flex-col gap-2 overflow-y-auto scrollbar-cyber relative">
+        {isExpanded && (
+          <motion.div
+            layoutId="nav-indicator"
+            className="absolute left-4 w-[3px] bg-neon-cyan rounded-full shadow-[0_0_8px_rgba(6,182,212,0.6)]"
+            style={{ top: sliderStyle.top, height: sliderStyle.height }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          />
+        )}
+        {navItems.map((item, idx) => {
           const Icon = item.icon;
           return (
             <NavLink
               key={item.path}
+              data-nav-index={idx}
               to={item.path}
+              ref={activeIndex === idx ? activeItemRef : undefined}
+              onClick={() => { setTimeout(updateSlider, 50); }}
               className={({ isActive }) =>
-                `flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-300 group relative ${
+                `flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 group relative ${
                   isActive
-                    ? 'bg-gradient-to-r from-neon-cyan/20 to-transparent border-l-2 border-neon-cyan text-white shadow-[inset_0_0_20px_rgba(6,182,212,0.1)]'
+                    ? isExpanded
+                      ? 'text-white bg-gradient-to-r from-neon-cyan/15 to-transparent shadow-[inset_0_0_20px_rgba(6,182,212,0.08)]'
+                      : 'text-white bg-neon-cyan/20'
                     : 'text-gray-400 hover:text-white hover:bg-cyber-card'
                 }`
               }

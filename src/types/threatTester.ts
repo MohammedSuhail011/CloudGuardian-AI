@@ -59,6 +59,19 @@ export interface ExportPayload {
   format: 'csv' | 'json' | 'pdf' | 'docx';
 }
 
+export interface FeedItem {
+  id: string;
+  time: string;
+  alert: string;
+  level: 'critical' | 'high' | 'medium' | 'low';
+  source: string;
+  detail: string;
+  provider: string;
+  timestamp: number;
+  riskScore?: number;
+  dismissed?: boolean;
+}
+
 export interface AIAnalysisResponse {
   executiveSummary: string;
   threatAnalysis: string;

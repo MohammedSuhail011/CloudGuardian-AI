@@ -22,16 +22,27 @@ export const ParticlesBackground: React.FC = () => {
       particles.push({
         x: Math.random() * w,
         y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.2,
-        vy: (Math.random() - 0.5) * 0.2,
-        r: Math.random() * 1.5 + 0.5,
-        a: Math.random() * 0.3 + 0.1,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        r: Math.random() * 2 + 0.8,
+        a: Math.random() * 0.4 + 0.15,
       });
     }
 
     let skip = 0;
-    const draw = () => {
-      skip = (skip + 1) % 2;
+    let paused = false;
+    let lastFrame = 0;
+    const frameInterval = 1000 / 60;
+
+    const onVisibility = () => { paused = document.hidden; };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    const draw = (now: number) => {
+      animId = requestAnimationFrame(draw);
+      if (paused) return;
+      if (now - lastFrame < frameInterval) return;
+      lastFrame = now;
+      skip = (skip + 1) % 3;
       ctx.clearRect(0, 0, w, h);
       for (const p of particles) {
         p.x += p.vx;
@@ -57,17 +68,15 @@ export const ParticlesBackground: React.FC = () => {
               ctx.beginPath();
               ctx.moveTo(particles[i].x, particles[i].y);
               ctx.lineTo(particles[j].x, particles[j].y);
-              ctx.strokeStyle = `rgba(6, 182, 212, ${0.05 * (1 - Math.sqrt(dist) / 150)})`;
+              ctx.strokeStyle = `rgba(6, 182, 212, ${0.08 * (1 - Math.sqrt(dist) / 150)})`;
               ctx.stroke();
             }
           }
         }
       }
-
-      animId = requestAnimationFrame(draw);
     };
 
-    draw();
+    animId = requestAnimationFrame(draw);
 
     const resize = () => {
       w = window.innerWidth;
@@ -80,6 +89,7 @@ export const ParticlesBackground: React.FC = () => {
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', resize);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   }, []);
 

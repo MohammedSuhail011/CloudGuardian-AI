@@ -6,24 +6,29 @@ export const CursorGlow: React.FC = () => {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    let rafId: number | null = null;
     const move = (e: MouseEvent) => {
-      el.style.left = `${e.clientX - 150}px`;
-      el.style.top = `${e.clientY - 150}px`;
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        el.style.transform = `translate(${e.clientX - 150}px, ${e.clientY - 150}px)`;
+        rafId = null;
+      });
     };
     window.addEventListener('mousemove', move);
-    return () => window.removeEventListener('mousemove', move);
+    return () => {
+      window.removeEventListener('mousemove', move);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   return (
     <div
       ref={ref}
-      className="fixed pointer-events-none z-[9999] rounded-full"
+      className="fixed pointer-events-none z-[9999] rounded-full will-change-transform"
       style={{
-        left: -200,
-        top: -200,
-        width: 300,
-        height: 300,
-        background: 'radial-gradient(circle at center, rgba(6, 182, 212, 0.06) 0%, transparent 70%)',
+        width: 200,
+        height: 200,
+        background: 'radial-gradient(circle at center, rgba(6, 182, 212, 0.04) 0%, transparent 70%)',
       }}
     />
   );

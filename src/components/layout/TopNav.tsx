@@ -1,17 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Bell, Settings as SettingsIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export const TopNav: React.FC = () => {
-  const [time, setTime] = useState(new Date());
-  const [showNotifications, setShowNotifications] = useState(false);
-  const navigate = useNavigate();
-
+const Clock: React.FC = React.memo(() => {
+  const ref = useRef<HTMLSpanElement>(null);
   useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
+    const tick = () => {
+      if (ref.current) ref.current.textContent = new Date().toLocaleTimeString();
+    };
+    tick();
+    const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
   }, []);
+  return <span ref={ref}>{new Date().toLocaleTimeString()}</span>;
+});
+
+export const TopNav: React.FC = () => {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <header className="h-20 glass-panel border-x-0 border-t-0 rounded-none sticky top-0 z-40 bg-cyber-darker/80 backdrop-blur-md px-8 flex items-center justify-between">
@@ -33,7 +40,7 @@ export const TopNav: React.FC = () => {
       <div className="flex items-center gap-6">
         <div className="hidden md:flex items-center gap-2 font-mono text-neon-cyan/80 text-sm bg-cyber-card px-4 py-1.5 rounded-md border border-cyber-border">
           <span>SYS.TIME //</span>
-          <span className="text-white">{time.toLocaleTimeString()}</span>
+          <span className="text-white"><Clock /></span>
         </div>
 
         <div className="flex items-center gap-4 relative">
@@ -52,7 +59,7 @@ export const TopNav: React.FC = () => {
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute right-0 mt-2 w-80 glass-panel rounded-lg shadow-2xl z-50 p-4 border border-cyber-border bg-cyber-darker"
+                  className="fixed right-6 top-20 w-80 glass-panel rounded-lg shadow-2xl z-[200] p-4 border border-cyber-border bg-cyber-darker"
                 >
                   <h3 className="text-white font-semibold mb-3 border-b border-cyber-border pb-2">Notifications</h3>
                   <div className="space-y-3">
