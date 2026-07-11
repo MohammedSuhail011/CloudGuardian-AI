@@ -17,7 +17,11 @@ const navItems = [
 export const Sidebar: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [avatar, setAvatar] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('cyberweb-settings') || '{}').avatar || 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f916/512.webp'; } catch { return 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f916/512.webp'; }
+    try {
+      const saved = JSON.parse(localStorage.getItem('cyberweb-settings') || '{}').avatar;
+      if (saved) return saved;
+    } catch {}
+    return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><defs><style>@keyframes g1{0%,100%{clip-path:inset(0 0 0 0);transform:translate(0)}5%{clip-path:inset(20% 0 50% 0);transform:translate(3px,-1px)}10%{clip-path:inset(0 0 0 0);transform:translate(0)}45%{clip-path:inset(0 0 0 0);transform:translate(0)}46%{clip-path:inset(60% 0 10% 0);transform:translate(-2px,1px)}47%{clip-path:inset(0 0 0 0);transform:translate(0)}}@keyframes eyePulse{0%,100%{opacity:.6;filter:drop-shadow(0 0 4px #ef4444)}50%{opacity:1;filter:drop-shadow(0 0 12px #ef4444) drop-shadow(0 0 24px #ef4444)}}</style></defs><circle cx="60" cy="60" r="60" fill="#0a0514"/><g style="animation:g1 4s steps(1) infinite" fill="none" stroke="#06b6d4" stroke-width="1.5"><ellipse cx="60" cy="55" rx="28" ry="32" opacity=".8"/><ellipse cx="48" cy="48" rx="8" ry="10"/><ellipse cx="72" cy="48" rx="8" ry="10"/><path d="M48 68 L53 73 L60 68 L67 73 L72 68" stroke-width="1.2"/></g><g style="animation:eyePulse 2s ease-in-out infinite"><circle cx="48" cy="48" r="3" fill="#ef4444"/><circle cx="72" cy="48" r="3" fill="#ef4444"/></g></svg>`)}`;
   });
   const [displayName, setDisplayName] = useState(() => {
     try { return JSON.parse(localStorage.getItem('cyberweb-settings') || '{}').displayName || 'Commander Jarvis'; } catch { return 'Commander Jarvis'; }
