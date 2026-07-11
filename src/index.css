@@ -147,6 +147,12 @@ svg:focus-visible {
   background: transparent !important;
 }
 
+/* Restore pointer cursor on interactive elements when system cursor is hidden */
+a, button, input, select, textarea, [role="button"], [role="link"],
+.nav-link, .recharts-bar-rectangle, .recharts-sector {
+  cursor: pointer !important;
+}
+
 /* Scan line animation */
 .scan-line {
   position: absolute;

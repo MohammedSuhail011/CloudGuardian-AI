@@ -4,6 +4,7 @@ export const CursorGlow: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    document.body.style.cursor = 'none';
     const el = ref.current;
     if (!el) return;
     const move = (e: MouseEvent) => {
@@ -11,7 +12,10 @@ export const CursorGlow: React.FC = () => {
       el.style.top = `${e.clientY}px`;
     };
     window.addEventListener('mousemove', move, { passive: true });
-    return () => window.removeEventListener('mousemove', move);
+    return () => {
+      window.removeEventListener('mousemove', move);
+      document.body.style.cursor = '';
+    };
   }, []);
 
   return (

@@ -92,8 +92,8 @@ function ThreatDot({
       <mesh
         ref={meshRef}
         onClick={handleClick}
-        onPointerOver={() => { document.body.style.cursor = 'pointer'; }}
-        onPointerOut={() => { document.body.style.cursor = 'default'; }}
+        onPointerOver={() => {}}
+        onPointerOut={() => {}}
       >
         <sphereGeometry args={[0.06, 12, 12]} />
         <meshBasicMaterial color={sevColor} transparent opacity={0.9} />
