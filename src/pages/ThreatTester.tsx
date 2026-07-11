@@ -15,7 +15,7 @@ import type { CloudResource, ThreatFinding, AnalysisResult, CloudProvider, Sever
 import { parseCSV, parseJSON, parseJSONL, analyzeResources } from '../utils/threatAnalysis';
 import { getSampleResources } from '../utils/sampleThreatData';
 import { useDataset } from '../store/DatasetContext';
-import { tooltipContentStyle, PieActiveShape, BarActiveShape, AnimatedBarShape } from '../utils/chartConfig';
+import { tooltipContentStyle, tooltipCursorStyle, PieActiveShape, BarActiveShape, AnimatedBarShape } from '../utils/chartConfig';
 
 const severityColors: Record<Severity, string> = { Critical: '#ef4444', High: '#f97316', Medium: '#eab308', Low: '#22c55e' };
 const providerColors: Record<CloudProvider, string> = { AWS: '#ff9900', Azure: '#0089D6', GCP: '#EA4335' };
@@ -478,7 +478,7 @@ Respond in JSON: {"executiveSummary":"...","threatAnalysis":"...","businessImpac
                   >
                     {Object.entries(chartData.severityCount).map(([k]) => (<Cell key={k} fill={severityColors[k as Severity]} />))}
                   </Pie>
-                  <Tooltip contentStyle={tooltipContentStyle} />
+                  <Tooltip contentStyle={tooltipContentStyle} cursor={tooltipCursorStyle} />
                 </RechartsPie>
               </ResponsiveContainer>
               <div className="flex justify-center gap-3 mt-2 text-xs">
@@ -494,7 +494,7 @@ Respond in JSON: {"executiveSummary":"...","threatAnalysis":"...","businessImpac
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                   <XAxis dataKey="name" stroke="rgba(255,255,255,0.2)" tick={{ fill: '#9ca3af', fontSize: 11 }} />
                   <YAxis stroke="rgba(255,255,255,0.2)" tick={{ fill: '#9ca3af', fontSize: 11 }} allowDecimals={false} />
-                  <Tooltip contentStyle={tooltipContentStyle} />
+                  <Tooltip contentStyle={tooltipContentStyle} cursor={tooltipCursorStyle} />
                   <Bar dataKey="threats" radius={[4, 4, 0, 0]}
                     isAnimationActive={false}
                     shape={AnimatedBarShape}

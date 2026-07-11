@@ -9,7 +9,7 @@ import { LiveFeed } from '../components/dashboard/LiveFeed';
 import { useDataset } from '../store/DatasetContext';
 import { useNavigate } from 'react-router-dom';
 import type { CloudProvider, Severity, FeedItem } from '../types/threatTester';
-import { tooltipContentStyle, PieActiveShape, BarActiveShape, AnimatedBarShape } from '../utils/chartConfig';
+import { tooltipContentStyle, tooltipCursorStyle, PieActiveShape, BarActiveShape, AnimatedBarShape } from '../utils/chartConfig';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -486,7 +486,7 @@ export const Dashboard = () => {
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip contentStyle={tooltipContentStyle} />
+                      <Tooltip contentStyle={tooltipContentStyle} cursor={tooltipCursorStyle} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -592,7 +592,7 @@ export const Dashboard = () => {
                       <CartesianGrid strokeDasharray="3 3" stroke="#2e303a" vertical={false} />
                       <XAxis dataKey="provider" stroke="#9ca3af" fontSize={11} tickLine={false} axisLine={false} />
                       <YAxis stroke="#9ca3af" fontSize={11} tickLine={false} axisLine={false} />
-                      <Tooltip contentStyle={tooltipContentStyle} />
+                      <Tooltip contentStyle={tooltipContentStyle} cursor={tooltipCursorStyle} />
                       <Bar
                         dataKey="threats" radius={[4, 4, 0, 0]} maxBarSize={40}
                         isAnimationActive={false}

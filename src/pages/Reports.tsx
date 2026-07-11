@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { FileText, Download, Filter, Calendar, FileBarChart, Database } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, type PieLabelRenderProps } from 'recharts';
 import { useDataset } from '../store/DatasetContext';
-import { tooltipContentStyle, PieActiveShape, BarActiveShape, AnimatedBarShape } from '../utils/chartConfig';
+import { tooltipContentStyle, tooltipCursorStyle, PieActiveShape, BarActiveShape, AnimatedBarShape } from '../utils/chartConfig';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -155,7 +155,7 @@ export const Reports = () => {
                       <CartesianGrid strokeDasharray="3 3" stroke="#2e303a" horizontal={false} />
                       <XAxis type="number" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
                       <YAxis type="category" dataKey="name" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} width={60} />
-                      <Tooltip contentStyle={tooltipContentStyle} />
+                      <Tooltip contentStyle={tooltipContentStyle} cursor={tooltipCursorStyle} />
                        <Bar dataKey="resources" fill="#06b6d4" radius={[0, 4, 4, 0]} name="Resources"
                          isAnimationActive={false}
                          shape={AnimatedBarShape}
@@ -189,7 +189,7 @@ export const Reports = () => {
                           <Cell key={entry.name} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip contentStyle={tooltipContentStyle} />
+                      <Tooltip contentStyle={tooltipContentStyle} cursor={tooltipCursorStyle} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>

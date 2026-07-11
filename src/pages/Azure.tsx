@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Cloud, Shield, Database, Lock, Server, Activity, ArrowUpRight, AlertTriangle, CheckCircle, Clock, ChevronDown, ChevronRight, BarChart } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useDataset } from '../store/DatasetContext';
-import { tooltipContentStyle, PieActiveShape } from '../utils/chartConfig';
+import { tooltipContentStyle, tooltipCursorStyle, PieActiveShape } from '../utils/chartConfig';
 
 const serviceIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   'Virtual Machines': Server, Storage: Database, 'Azure AD': Lock, 'Security Center': Shield,
@@ -211,7 +211,7 @@ export const Azure = () => {
                           <Cell key={entry.name} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip contentStyle={tooltipContentStyle} />
+                      <Tooltip contentStyle={tooltipContentStyle} cursor={tooltipCursorStyle} />
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="grid grid-cols-2 gap-2 mt-2">

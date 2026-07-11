@@ -139,7 +139,7 @@ export function AnimatedBarShape(props: {
   useEffect(() => {
     if (isFirst.current) {
       isFirst.current = false;
-      const delay = index * 60;
+      const delay = index * 80;
       const timer = setTimeout(() => {
         setAnimHeight(height);
         setAnimY(y);
@@ -151,16 +151,56 @@ export function AnimatedBarShape(props: {
     }
   }, [y, height, index]);
 
+  const filterId = `bar-glow-${index}`;
+
   return (
-    <rect
-      x={x}
-      y={animY}
-      width={width}
-      height={animHeight}
-      fill={fill}
-      rx={4}
-      style={{ transition: 'height 600ms ease-out, y 600ms ease-out' }}
-    />
+    <g>
+      <defs>
+        <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <linearGradient id={`bar-grad-${index}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={fill} stopOpacity={1} />
+          <stop offset="100%" stopColor={fill} stopOpacity={0.5} />
+        </linearGradient>
+      </defs>
+      {/* Glow layer */}
+      <rect
+        x={x - 2}
+        y={animY}
+        width={width + 4}
+        height={animHeight}
+        rx={6}
+        fill={fill}
+        opacity={0.15}
+        style={{ transition: 'height 600ms cubic-bezier(0.34,1.56,0.64,1), y 600ms cubic-bezier(0.34,1.56,0.64,1)' }}
+      />
+      {/* Main bar with gradient */}
+      <rect
+        x={x}
+        y={animY}
+        width={width}
+        height={animHeight}
+        fill={`url(#bar-grad-${index})`}
+        rx={4}
+        style={{ transition: 'height 600ms cubic-bezier(0.34,1.56,0.64,1), y 600ms cubic-bezier(0.34,1.56,0.64,1)' }}
+      />
+      {/* Top cap highlight */}
+      <rect
+        x={x}
+        y={animY}
+        width={width}
+        height={Math.min(3, animHeight)}
+        rx={4}
+        fill="white"
+        opacity={0.2}
+        style={{ transition: 'y 600ms cubic-bezier(0.34,1.56,0.64,1)' }}
+      />
+    </g>
   );
 }
 
