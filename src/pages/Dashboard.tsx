@@ -9,7 +9,7 @@ import { LiveFeed } from '../components/dashboard/LiveFeed';
 import { useDataset } from '../store/DatasetContext';
 import { useNavigate } from 'react-router-dom';
 import type { CloudProvider, Severity, FeedItem } from '../types/threatTester';
-import { tooltipContentStyle, tooltipCursorStyle, PieActiveShape, BarActiveShape, AnimatedBarShape } from '../utils/chartConfig';
+import { tooltipContentStyle, tooltipCursorStyle, PieActiveShape, AnimatedBarShape } from '../utils/chartConfig';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -597,7 +597,6 @@ export const Dashboard = () => {
                         dataKey="threats" radius={[4, 4, 0, 0]} maxBarSize={40}
                         isAnimationActive={false}
                         shape={AnimatedBarShape}
-                        activeBar={BarActiveShape}
                       >
                         {Object.entries(analysis.providerBreakdown).map(([p]) => (
                           <Cell key={p} fill={providerColors[p] || '#8b5cf6'} />

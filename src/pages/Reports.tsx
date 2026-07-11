@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { FileText, Download, Filter, Calendar, FileBarChart, Database } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, type PieLabelRenderProps } from 'recharts';
 import { useDataset } from '../store/DatasetContext';
-import { tooltipContentStyle, tooltipCursorStyle, PieActiveShape, BarActiveShape, AnimatedBarShape } from '../utils/chartConfig';
+import { tooltipContentStyle, tooltipCursorStyle, PieActiveShape, AnimatedBarShape } from '../utils/chartConfig';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -163,7 +163,6 @@ export const Reports = () => {
                         <Bar dataKey="threats" fill="#ef4444" radius={[0, 4, 4, 0]} name="Threats"
                          isAnimationActive={false}
                          shape={AnimatedBarShape}
-                          activeBar={BarActiveShape}
                         />
                     </BarChart>
                   </ResponsiveContainer>

@@ -15,7 +15,7 @@ import type { CloudResource, ThreatFinding, AnalysisResult, CloudProvider, Sever
 import { parseCSV, parseJSON, parseJSONL, analyzeResources } from '../utils/threatAnalysis';
 import { getSampleResources } from '../utils/sampleThreatData';
 import { useDataset } from '../store/DatasetContext';
-import { tooltipContentStyle, tooltipCursorStyle, PieActiveShape, BarActiveShape, AnimatedBarShape } from '../utils/chartConfig';
+import { tooltipContentStyle, tooltipCursorStyle, PieActiveShape, AnimatedBarShape } from '../utils/chartConfig';
 
 const severityColors: Record<Severity, string> = { Critical: '#ef4444', High: '#f97316', Medium: '#eab308', Low: '#22c55e' };
 const providerColors: Record<CloudProvider, string> = { AWS: '#ff9900', Azure: '#0089D6', GCP: '#EA4335' };
@@ -495,10 +495,9 @@ Respond in JSON: {"executiveSummary":"...","threatAnalysis":"...","businessImpac
                   <XAxis dataKey="name" stroke="rgba(255,255,255,0.2)" tick={{ fill: '#9ca3af', fontSize: 11 }} />
                   <YAxis stroke="rgba(255,255,255,0.2)" tick={{ fill: '#9ca3af', fontSize: 11 }} allowDecimals={false} />
                   <Tooltip contentStyle={tooltipContentStyle} cursor={tooltipCursorStyle} />
-                  <Bar dataKey="threats" radius={[4, 4, 0, 0]}
+                   <Bar dataKey="threats" radius={[4, 4, 0, 0]}
                     isAnimationActive={false}
                     shape={AnimatedBarShape}
-                    activeBar={BarActiveShape}
                   >
                     {chartData.providerThreats.map((entry) => (<Cell key={entry.name} fill={entry.color} />))}
                   </Bar>
