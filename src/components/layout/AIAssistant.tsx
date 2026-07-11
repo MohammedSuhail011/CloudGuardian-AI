@@ -49,10 +49,11 @@ interface Message {
 export const AIAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Hey! I'm CLOUDCORE X — your cloud security assistant. I can help with scanning your AWS, Azure, or GCP environments, analyzing threats, or just chatting. What can I do for you?" }
+    { role: 'assistant', content: "Hey! I'm CLOUDCORE X. Ask me anything — cloud security, threats, or just chat." }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [provider, setProvider] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -91,6 +92,10 @@ export const AIAssistant: React.FC = () => {
       });
       
       const data = await response.json();
+      
+      if (data.provider) {
+        setProvider(data.provider);
+      }
       
       setMessages(prev => [...prev, { 
         role: 'assistant', 
@@ -173,7 +178,12 @@ export const AIAssistant: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-white font-bold text-sm">CLOUDCORE X</h3>
-                  <p className="text-neon-cyan text-xs font-mono">Status: Online</p>
+                  <p className={`text-xs font-mono ${provider === 'none' || provider?.includes('error') ? 'text-yellow-400' : provider ? 'text-neon-green' : 'text-neon-cyan'}`}>
+                    {provider === 'none' ? '⚠ Simulation Mode' 
+                      : provider?.includes('error') ? `⚠ ${provider}` 
+                      : provider ? `● Live — ${provider}` 
+                      : 'Status: Online'}
+                  </p>
                 </div>
               </div>
               <button 
