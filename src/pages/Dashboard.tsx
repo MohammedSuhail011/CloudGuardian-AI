@@ -640,10 +640,10 @@ export const Dashboard = () => {
                     key={action.id}
                     layoutId={`action-${action.id}`}
                     onClick={() => openModal(action.id)}
-                    initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                    whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: quickActions.indexOf(action) * 0.08, type: "spring", stiffness: 200 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-20px' }}
+                    transition={{ duration: 0.4, delay: quickActions.indexOf(action) * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
                     whileHover={{ scale: 1.03, y: -5 }}
                     whileTap={{ scale: 0.95 }}
                     className="p-4 rounded-2xl text-left text-white border border-white/10 hover:border-white/25 transition-all shadow-lg relative overflow-hidden group/card"

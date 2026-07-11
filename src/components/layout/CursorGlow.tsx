@@ -17,14 +17,10 @@ export const CursorGlow: React.FC = () => {
   return (
     <div
       ref={ref}
-      className="fixed pointer-events-none z-[9999] rounded-full will-change-transform"
+      className="fixed pointer-events-none z-[9999] w-3 h-3 rounded-full -translate-x-1/2 -translate-y-1/2"
       style={{
-        width: 40,
-        height: 40,
-        transform: 'translate(-50%, -50%)',
-        transition: 'left 0.15s ease-out, top 0.15s ease-out',
-        background: 'radial-gradient(circle, rgba(6,182,212,0.5) 0%, rgba(6,182,212,0.15) 40%, transparent 70%)',
-        boxShadow: '0 0 20px rgba(6,182,212,0.3)',
+        background: 'rgba(6,182,212,0.9)',
+        boxShadow: '0 0 6px rgba(6,182,212,0.8), 0 0 15px rgba(6,182,212,0.5), 0 0 30px rgba(6,182,212,0.3)',
       }}
     />
   );

@@ -6,6 +6,7 @@ import { TopNav } from './TopNav';
 import { ParticlesBackground } from './ParticlesBackground';
 import { BackgroundEffects } from './BackgroundEffects';
 import { StarField } from './StarField';
+import { CursorGlow } from './CursorGlow';
 import { AIAssistant } from './AIAssistant';
 
 export const AppLayout: React.FC = () => {
@@ -16,6 +17,7 @@ export const AppLayout: React.FC = () => {
       <ParticlesBackground />
       <BackgroundEffects />
       <StarField />
+      <CursorGlow />
       <Sidebar />
       <div className="flex-1 flex flex-col ml-[80px] md:ml-[260px] transition-all duration-300 relative z-10">
         <TopNav />
