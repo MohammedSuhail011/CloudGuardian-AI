@@ -28,7 +28,7 @@ function generateReportContent(resources: { provider: string; service: string }[
   const complianceScore = Math.max(0, Math.min(100, Math.round(100 - avgRisk)));
 
   return [
-    `CloudGuardian AI - Security Posture Assessment`,
+    `CLOUDCORE X - Security Posture Assessment`,
     `Generated: ${new Date().toLocaleString()}`,
     ``,
     `Overall Security Score: ${complianceScore}%`,
@@ -83,7 +83,7 @@ export const Reports = () => {
       const newId = `REP-${Date.now().toString(36).toUpperCase()}`;
       const content = hasAnalysis
         ? generateReportContent(resources, analysis)
-        : `CloudGuardian AI - Security Report\nGenerated: ${new Date().toLocaleString()}\n\nNo dataset loaded. Upload resources in Threat Dataset Tester first.\n\n--- End of Report ---`;
+        : `CLOUDCORE X - Security Report\nGenerated: ${new Date().toLocaleString()}\n\nNo dataset loaded. Upload resources in Threat Dataset Tester first.\n\n--- End of Report ---`;
       const blob = new Blob([content], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');

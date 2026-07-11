@@ -33,7 +33,7 @@ app.get('/api/cloud/aws', (req: Request, res: Response) => {
 
 // --- AI Chat ---
 
-const SYSTEM_PROMPT = `You are CloudGuardian AI, a professional and knowledgeable cloud security assistant. You work across AWS, Azure, and GCP environments.
+const SYSTEM_PROMPT = `You are CLOUDCORE X, a professional and knowledgeable cloud security assistant. You work across AWS, Azure, and GCP environments.
 
 Personality:
 - Friendly, helpful, and conversational when answering casual questions
@@ -58,7 +58,7 @@ function generateSimulatedResponse(message: string): string {
   // --- Casual conversation ---
   if (/^(hi|hey|hello|howdy|hola|yo|sup|what'?s up|greetings)\b/.test(lower)) {
     const greetings = [
-      "Hey there! I'm CloudGuardian AI — your cloud security assistant. What can I help you with today?",
+      "Hey there! I'm CLOUDCORE X — your cloud security assistant. What can I help you with today?",
       "Hi! Great to see you. I'm here to help with anything cloud security related, or just chat if you'd like. What's on your mind?",
       "Hello! All systems are running smoothly. How can I assist you?",
       "Hey! Welcome back. Need help with your cloud infrastructure, or is there something else on your mind?",
@@ -101,7 +101,7 @@ function generateSimulatedResponse(message: string): string {
   }
 
   if (/who (created|made|built|developed) you|what (are|r) you|tell me about yourself/.test(lower)) {
-    return "I'm CloudGuardian AI — a cybersecurity assistant built to monitor and protect cloud environments across AWS, Azure, and GCP. I was designed to help security teams detect threats, analyze misconfigurations, and respond to incidents quickly. Think of me as your always-on cloud security copilot.";
+    return "I'm CLOUDCORE X — a cybersecurity assistant built to monitor and protect cloud environments across AWS, Azure, and GCP. I was designed to help security teams detect threats, analyze misconfigurations, and respond to incidents quickly. Think of me as your always-on cloud security copilot.";
   }
 
   if (/what time|what('s| is) the time|current time/.test(lower)) {
@@ -251,7 +251,7 @@ app.post('/api/chat', async (req: Request, res: Response): Promise<void> => {
 
 app.listen(port, () => {
   const isSimMode = !process.env.GROK_API_KEY || process.env.GROK_API_KEY === 'your_grok_api_key_here';
-  console.log(`\n  ☁️  CloudGuardian AI Backend`);
+  console.log(`\n  ☁️  CLOUDCORE X Backend`);
   console.log(`  ➜  http://localhost:${port}`);
   console.log(`  ➜  Mode: ${isSimMode ? 'Simulation (set GROK_API_KEY for real LLM)' : 'Live LLM'}\n`);
 });

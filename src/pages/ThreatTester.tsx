@@ -768,13 +768,13 @@ function generateReportHTML(analysis: AnalysisResult, date: string): string {
   td { padding: 8px 12px; border: 1px solid #1e293b; color: #cbd5e1; }
   .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #334155; font-size: 11px; color: #64748b; }
 </style></head><body>
-<h1>CloudGuardian AI — Threat Assessment Report</h1>
+<h1>CLOUDCORE X — Threat Assessment Report</h1>
 <p class="meta">Generated: ${date} | Resources: ${analysis.resources.length} | Findings: ${analysis.findings.length}</p>
 <div class="score" style="color:${analysis.riskScore >= 60 ? '#ef4444' : analysis.riskScore >= 40 ? '#f97316' : analysis.riskScore >= 20 ? '#eab308' : '#22c55e'}">${analysis.riskScore}<span style="font-size:18px;color:#64748b">/100</span></div>
 <p style="color:#ef4444">Threat Level: ${analysis.threatLevel}</p>
 <h2>Findings Summary</h2>
 <table><thead><tr><th>Resource</th><th>Provider</th><th>Service</th><th>Threat</th><th>Severity</th><th>Score</th><th>Recommendation</th></tr></thead><tbody>${threatRows}</tbody></table>
 <p style="margin-top:20px">Compliant: ${analysis.compliantCount} | Non-Compliant: ${analysis.nonCompliantCount}</p>
-<div class="footer">CloudGuardian AI - Cyber Security Dashboard</div>
+<div class="footer">CLOUDCORE X - Cyber Security Dashboard</div>
 </body></html>`;
 }

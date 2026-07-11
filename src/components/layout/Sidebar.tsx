@@ -16,7 +16,12 @@ const navItems = [
 
 export const Sidebar: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(true);
-  const [avatar, setAvatar] = useState('https://fonts.gstatic.com/s/e/notoemoji/latest/1f916/512.webp');
+  const [avatar, setAvatar] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('cyberweb-settings') || '{}').avatar || 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f916/512.webp'; } catch { return 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f916/512.webp'; }
+  });
+  const [displayName, setDisplayName] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('cyberweb-settings') || '{}').displayName || 'Commander Jarvis'; } catch { return 'Commander Jarvis'; }
+  });
   const [profileExpanding, setProfileExpanding] = useState(false);
   const [expandOrigin, setExpandOrigin] = useState({ x: 0, y: 0 });
   const profileRef = useRef<HTMLButtonElement>(null);
@@ -49,8 +54,16 @@ export const Sidebar: React.FC = () => {
       const customEvent = e as CustomEvent<string>;
       setAvatar(customEvent.detail);
     };
+    const handleNameChange = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      setDisplayName(customEvent.detail);
+    };
     window.addEventListener('avatarChange', handleAvatarChange);
-    return () => window.removeEventListener('avatarChange', handleAvatarChange);
+    window.addEventListener('displayNameChange', handleNameChange);
+    return () => {
+      window.removeEventListener('avatarChange', handleAvatarChange);
+      window.removeEventListener('displayNameChange', handleNameChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -78,62 +91,121 @@ export const Sidebar: React.FC = () => {
       className="h-screen glass-panel rounded-none border-y-0 border-l-0 flex flex-col fixed left-0 top-0 z-50 bg-cyber-darker/90 backdrop-blur-xl"
     >
       <div className="flex items-center justify-between p-6 border-b border-cyber-border relative overflow-hidden">
-        {/* Animated scan line across header */}
-        <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-50 animate-glow-line" />
-        <div className="absolute -inset-20 bg-gradient-to-r from-neon-cyan/5 via-transparent to-neon-purple/5 animate-spin-slow pointer-events-none" style={{ animationDuration: '8s' }} />
-        
+        {/* Intense animated background wash */}
+        <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/8 via-neon-purple/5 to-neon-cyan/8 animate-[borderTravel_4s_linear_infinite] bg-[length:200%_100%]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-neon-cyan/5 via-transparent to-neon-purple/5 animate-[hexPulse_3s_ease-in-out_infinite]" />
+
+        {/* Energy border glow */}
+        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-neon-cyan to-transparent animate-[energyPulse_2s_ease-in-out_infinite]" />
+        <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-neon-purple to-transparent animate-[energyPulse_2s_ease-in-out_infinite] [animation-delay:0.5s]" />
+        <div className="absolute inset-y-0 left-0 w-[1px] bg-gradient-to-b from-transparent via-neon-cyan/40 to-transparent" />
+
+        {/* Laser sweep across header */}
+        <div className="absolute top-0 left-[-30%] w-[15%] h-full bg-gradient-to-r from-transparent via-neon-cyan/30 to-transparent skew-x-[-20deg] animate-[laserSweep_4s_ease-in-out_infinite] pointer-events-none" />
+        <div className="absolute top-0 left-[-30%] w-[10%] h-full bg-gradient-to-r from-transparent via-neon-purple/20 to-transparent skew-x-[-20deg] animate-[laserSweep_4s_ease-in-out_infinite] [animation-delay:2s] pointer-events-none" />
+
         {isExpanded ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3 relative z-10">
-            <div className="relative w-10 h-10 flex items-center justify-center">
-              {/* Outer rotating ring */}
-              <svg className="absolute inset-0 w-10 h-10 animate-spin-slow" style={{ animationDuration: '4s' }} viewBox="0 0 40 40">
+            {/* Logo icon with crazy effects */}
+            <div className="relative w-12 h-12 flex items-center justify-center" style={{ animation: 'coreGlow 2s ease-in-out infinite' }}>
+              {/* Outermost orbit ring */}
+              <svg className="absolute -inset-2 w-16 h-16" style={{ animation: 'orbitRing 6s linear infinite' }} viewBox="0 0 64 64">
+                <defs>
+                  <linearGradient id="outerRing" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.6" />
+                    <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.6" />
+                  </linearGradient>
+                </defs>
+                <circle cx="32" cy="32" r="28" fill="none" stroke="url(#outerRing)" strokeWidth="0.8" strokeDasharray="8 16 4 12" />
+              </svg>
+              {/* Middle orbit ring (reverse) */}
+              <svg className="absolute -inset-1 w-14 h-14" style={{ animation: 'orbitRingReverse 4s linear infinite' }} viewBox="0 0 56 56">
+                <circle cx="28" cy="28" r="24" fill="none" stroke="#8b5cf6" strokeWidth="1" strokeDasharray="12 8 6 14" opacity="0.5" />
+              </svg>
+              {/* Inner rotating ring */}
+              <svg className="absolute inset-0 w-12 h-12" style={{ animation: 'orbitRing 3s linear infinite' }} viewBox="0 0 48 48">
                 <defs>
                   <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#06b6d4" />
                     <stop offset="100%" stopColor="#8b5cf6" />
                   </linearGradient>
                 </defs>
-                <circle cx="20" cy="20" r="17" fill="none" stroke="url(#ringGrad)" strokeWidth="1.5" strokeDasharray="30 20" opacity="0.8" />
+                <circle cx="24" cy="24" r="20" fill="none" stroke="url(#ringGrad)" strokeWidth="1.5" strokeDasharray="20 12" opacity="0.9" />
+                <circle cx="24" cy="24" r="20" fill="none" stroke="url(#ringGrad)" strokeWidth="0.5" strokeDasharray="6 30" opacity="0.4" />
               </svg>
-              {/* Inner pulsing dot */}
-              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple animate-pulse-glow shadow-[0_0_12px_rgba(6,182,212,0.6)]" />
+              {/* Energy core with pulse */}
+              <div className="absolute inset-0 m-auto w-8 h-8 rounded-full bg-gradient-to-br from-neon-cyan/40 to-neon-purple/40 animate-[energyPulse_1.5s_ease-in-out_infinite] blur-[2px]" />
+              <div className="absolute inset-0 m-auto w-6 h-6 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple animate-pulse-glow shadow-[0_0_15px_rgba(6,182,212,0.8),0_0_30px_rgba(139,92,246,0.4)]" />
               {/* Center shield icon */}
-              <Shield className="absolute w-4 h-4 text-white drop-shadow-[0_0_4px_rgba(6,182,212,0.8)]" />
+              <Shield className="absolute w-5 h-5 text-white drop-shadow-[0_0_6px_rgba(6,182,212,1)] drop-shadow-[0_0_12px_rgba(139,92,246,0.6)]" />
+              {/* Sparkle dots */}
+              <span className="absolute top-0 right-1 w-1 h-1 rounded-full bg-neon-cyan shadow-[0_0_4px_#06b6d4]" style={{ animation: 'sparkle 2s ease-in-out infinite' }} />
+              <span className="absolute bottom-1 left-0 w-0.5 h-0.5 rounded-full bg-neon-purple shadow-[0_0_4px_#8b5cf6]" style={{ animation: 'sparkle 2s ease-in-out infinite 0.7s' }} />
+              <span className="absolute top-2 left-0 w-0.5 h-0.5 rounded-full bg-white shadow-[0_0_4px_#fff]" style={{ animation: 'sparkle 2s ease-in-out infinite 1.3s' }} />
             </div>
+
+            {/* Text with crazy VFX */}
             <div className="relative group">
-              {/* Glitch layers (visible on hover) */}
-              <span className="absolute inset-0 font-bold text-xl text-neon-cyan opacity-0 group-hover:opacity-70 group-hover:translate-x-[2px] group-hover:-translate-y-[1px] transition-all duration-100 pointer-events-none select-none [clip-path:inset(20%_0_40%_0)]" aria-hidden>
-                CloudGuardian AI
+              {/* Permanent glitch layer 1 - cyan */}
+              <span
+                className="absolute inset-0 font-bold text-xl text-neon-cyan pointer-events-none select-none [clip-path:inset(20%_0_40%_0)]"
+                style={{ animation: 'textGlitchCopy1 5s steps(1) infinite' }}
+                aria-hidden
+              >
+                CLOUDCORE X
               </span>
-              <span className="absolute inset-0 font-bold text-xl text-neon-purple opacity-0 group-hover:opacity-70 group-hover:-translate-x-[2px] group-hover:translate-y-[1px] transition-all duration-100 pointer-events-none select-none [clip-path:inset(60%_0_0%_0)]" aria-hidden>
-                CloudGuardian AI
+              {/* Permanent glitch layer 2 - purple */}
+              <span
+                className="absolute inset-0 font-bold text-xl text-neon-purple pointer-events-none select-none [clip-path:inset(60%_0_0%_0)]"
+                style={{ animation: 'textGlitchCopy2 5s steps(1) infinite' }}
+                aria-hidden
+              >
+                CLOUDCORE X
               </span>
-              {/* Main text */}
-              <span className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan via-white to-neon-purple relative inline-block">
-                CloudGuardian AI
-                {/* Scan line sweeping across text */}
-                <span className="absolute inset-0 overflow-hidden pointer-events-none [mask-image:linear-gradient(black,black)] [background:linear-gradient(90deg,transparent,rgba(6,182,212,0.4),transparent)] [background-size:40%_100%] animate-[shimmer_3s_ease-in-out_infinite]" />
+              {/* Main text with constant flicker and glow */}
+              <span
+                className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan via-white to-neon-purple relative inline-block"
+                style={{ animation: 'logoGlitch 5s steps(1) infinite, logoFlicker 8s ease-in-out infinite', textShadow: '0 0 20px rgba(6,182,212,0.5), 0 0 40px rgba(139,92,246,0.3)' }}
+              >
+                CLOUDCORE X
+                {/* Shimmer sweep */}
+                <span className="absolute inset-0 overflow-hidden pointer-events-none [mask-image:linear-gradient(black,black)] [background:linear-gradient(90deg,transparent,rgba(255,255,255,0.6),transparent)] [background-size:30%_100%] animate-[shimmer_2s_ease-in-out_infinite]" />
               </span>
-              {/* Underline with traveling glow */}
-              <div className="relative h-[2px] mt-1 rounded-full overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-cyan bg-[length:200%_100%] animate-[glow-line_3s_linear_infinite] opacity-60" />
-                <div className="absolute top-0 left-0 h-full w-8 bg-gradient-to-r from-transparent via-white/80 to-transparent animate-[travel_2s_ease-in-out_infinite]" />
+              {/* Animated energy underline */}
+              <div className="relative h-[3px] mt-1 rounded-full overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-cyan bg-[length:200%_100%] animate-[borderTravel_2s_linear_infinite] opacity-80" />
+                <div className="absolute top-0 left-0 h-full w-12 bg-gradient-to-r from-transparent via-white/90 to-transparent animate-[travel_1.5s_ease-in-out_infinite]" />
+                <div className="absolute top-0 left-0 h-full w-6 bg-gradient-to-r from-transparent via-neon-cyan/60 to-transparent animate-[travel_2.5s_ease-in-out_infinite_0.3s]" />
               </div>
-              {/* Floating particles around text */}
-              <span className="absolute -top-1 -right-1 w-1 h-1 rounded-full bg-neon-cyan animate-pulse shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
-              <span className="absolute -bottom-1 left-4 w-0.5 h-0.5 rounded-full bg-neon-purple animate-pulse shadow-[0_0_6px_rgba(139,92,246,0.8)]" style={{ animationDelay: '0.5s' }} />
+              {/* Orbiting particles around text */}
+              <span className="absolute -top-2 -right-2 w-1.5 h-1.5 rounded-full bg-neon-cyan animate-pulse shadow-[0_0_8px_rgba(6,182,212,1)]" style={{ animation: 'sparkle 1.5s ease-in-out infinite' }} />
+              <span className="absolute -bottom-2 left-6 w-1 h-1 rounded-full bg-neon-purple animate-pulse shadow-[0_0_8px_rgba(139,92,246,1)]" style={{ animation: 'sparkle 1.5s ease-in-out infinite 0.5s' }} />
+              <span className="absolute top-1/2 -right-4 w-0.5 h-0.5 rounded-full bg-white shadow-[0_0_6px_#fff]" style={{ animation: 'sparkle 2s ease-in-out infinite 1s' }} />
+              <span className="absolute -top-1 left-1/3 w-0.5 h-0.5 rounded-full bg-neon-cyan shadow-[0_0_4px_#06b6d4]" style={{ animation: 'sparkle 1.8s ease-in-out infinite 0.3s' }} />
             </div>
           </motion.div>
         ) : (
           <motion.div
             className="relative w-10 h-10 flex items-center justify-center mx-auto"
-            whileHover={{ scale: 1.15 }}
-            transition={{ type: "spring", stiffness: 300 }}
+            whileHover={{ scale: 1.2, rotate: 180 }}
+            transition={{ type: "spring", stiffness: 200 }}
           >
-            <svg className="absolute inset-0 w-10 h-10 animate-spin-slow" style={{ animationDuration: '3s' }} viewBox="0 0 40 40">
-              <circle cx="20" cy="20" r="17" fill="none" stroke="#06b6d4" strokeWidth="1.5" strokeDasharray="25 25" opacity="0.6" />
+            {/* Collapsed logo rings */}
+            <svg className="absolute inset-0 w-10 h-10" style={{ animation: 'orbitRing 2s linear infinite' }} viewBox="0 0 40 40">
+              <defs>
+                <linearGradient id="ringGradSmall" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#06b6d4" />
+                  <stop offset="100%" stopColor="#8b5cf6" />
+                </linearGradient>
+              </defs>
+              <circle cx="20" cy="20" r="17" fill="none" stroke="url(#ringGradSmall)" strokeWidth="1.5" strokeDasharray="15 10 8 12" opacity="0.8" />
             </svg>
-            <Shield className="w-5 h-5 text-neon-cyan drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+            <svg className="absolute inset-0 w-10 h-10" style={{ animation: 'orbitRingReverse 3s linear infinite' }} viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="14" fill="none" stroke="#8b5cf6" strokeWidth="0.8" strokeDasharray="8 14" opacity="0.4" />
+            </svg>
+            <div className="absolute inset-0 m-auto w-5 h-5 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple animate-pulse-glow shadow-[0_0_12px_rgba(6,182,212,0.8)]" style={{ animation: 'energyPulse 1.5s ease-in-out infinite' }} />
+            <Shield className="w-5 h-5 text-neon-cyan drop-shadow-[0_0_8px_rgba(6,182,212,1)] relative z-10" style={{ filter: 'drop-shadow(0 0 4px rgba(6,182,212,0.8))' }} />
           </motion.div>
         )}
         <button
@@ -193,7 +265,7 @@ export const Sidebar: React.FC = () => {
           </div>
           {isExpanded && (
             <div className="overflow-hidden text-left flex-1 relative z-10">
-              <p className="text-sm font-semibold truncate text-white group-hover:text-neon-cyan transition-colors">Commander Jarvis</p>
+              <p className="text-sm font-semibold truncate text-white group-hover:text-neon-cyan transition-colors">{displayName}</p>
               <p className="text-xs text-neon-purple truncate">SysAdmin</p>
             </div>
           )}
@@ -294,7 +366,7 @@ export const Sidebar: React.FC = () => {
                   animate={{ textShadow: ['0 0 4px rgba(6,182,212,0.5)', '0 0 20px rgba(6,182,212,0.8)', '0 0 4px rgba(6,182,212,0.5)'] }}
                   transition={{ repeat: Infinity, duration: 2 }}
                 >
-                  Commander Jarvis
+                  {displayName}
                 </motion.h2>
                 <motion.p className="text-lg text-neon-cyan font-mono mb-3">
                   SYSTEM ADMINISTRATOR

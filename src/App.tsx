@@ -16,7 +16,7 @@ function App() {
   return (
     <BrowserRouter>
       <DatasetProvider>
-        <Suspense fallback={<div className="flex items-center justify-center h-screen bg-cyber-darker"><div className="text-neon-cyan font-mono text-sm animate-pulse">Loading CloudGuardian AI...</div></div>}>
+        <Suspense fallback={<div className="flex items-center justify-center h-screen bg-cyber-darker"><div className="text-neon-cyan font-mono text-sm animate-pulse">Loading CLOUDCORE X...</div></div>}>
           <Routes>
             <Route path="/" element={<AppLayout />}>
               <Route index element={<Dashboard />} />

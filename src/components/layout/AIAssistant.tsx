@@ -10,7 +10,7 @@ interface Message {
 export const AIAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Hey! I'm CloudGuardian AI — your cloud security assistant. I can help with scanning your AWS, Azure, or GCP environments, analyzing threats, or just chatting. What can I do for you?" }
+    { role: 'assistant', content: "Hey! I'm CLOUDCORE X — your cloud security assistant. I can help with scanning your AWS, Azure, or GCP environments, analyzing threats, or just chatting. What can I do for you?" }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -101,7 +101,7 @@ export const AIAssistant: React.FC = () => {
                   <span className="absolute -top-1 -right-1 w-2 h-2 bg-neon-green rounded-full animate-pulse"></span>
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-sm">CloudGuardian AI</h3>
+                  <h3 className="text-white font-bold text-sm">CLOUDCORE X</h3>
                   <p className="text-neon-cyan text-xs font-mono">Status: Online</p>
                 </div>
               </div>

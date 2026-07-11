@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, AlertTriangle, CheckCircle, Activity, Server, Lock, Eye, Zap, Clock, ArrowRight, FileText, Download, X, ChevronRight, Bug, Upload, Database, Cloud } from 'lucide-react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
@@ -745,6 +746,7 @@ export const Dashboard = () => {
       </motion.div>
 
       {/* ===== MODALS ===== */}
+      {createPortal(
       <AnimatePresence>
         {activeModal && (
           <motion.div
@@ -926,7 +928,7 @@ export const Dashboard = () => {
                           <p className="text-xs text-gray-400 mt-1">Ready to download</p>
                           <motion.button
                             onClick={() => {
-                              const text = `CloudGuardian AI - Security Report\n\nGenerated: ${new Date().toLocaleString()}\n\n${hasAnalysis ? `Resources: ${resources.length}\nFindings: ${analysis.findings.length}\nRisk Score: ${analysis.riskScore}/100\nThreat Level: ${analysis.threatLevel}\n\nProvider Breakdown:\n${Object.entries(analysis.providerBreakdown).map(([p, d]) => `  ${p}: ${d.resources} resources, ${d.threats} threats`).join('\n')}\n\nFindings:\n${analysis.findings.map(f => `  [${f.severity}] ${f.provider}/${f.service}: ${f.threat} (Score: ${f.riskScore})`).join('\n')}` : 'No dataset loaded. Upload in Threat Dataset Tester first.'}\n\n--- End of Report ---`;
+                              const text = `CLOUDCORE X - Security Report\n\nGenerated: ${new Date().toLocaleString()}\n\n${hasAnalysis ? `Resources: ${resources.length}\nFindings: ${analysis.findings.length}\nRisk Score: ${analysis.riskScore}/100\nThreat Level: ${analysis.threatLevel}\n\nProvider Breakdown:\n${Object.entries(analysis.providerBreakdown).map(([p, d]) => `  ${p}: ${d.resources} resources, ${d.threats} threats`).join('\n')}\n\nFindings:\n${analysis.findings.map(f => `  [${f.severity}] ${f.provider}/${f.service}: ${f.threat} (Score: ${f.riskScore})`).join('\n')}` : 'No dataset loaded. Upload in Threat Dataset Tester first.'}\n\n--- End of Report ---`;
                               const blob = new Blob([text], { type: 'text/plain' });
                               const url = URL.createObjectURL(blob);
                               const a = document.createElement('a');
@@ -1083,7 +1085,9 @@ export const Dashboard = () => {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+      )}
     </>
   );
 };

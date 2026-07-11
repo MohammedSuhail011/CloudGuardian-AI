@@ -112,6 +112,7 @@ export const Settings = () => {
       cloudAccounts,
     };
     localStorage.setItem('cyberweb-settings', JSON.stringify(data));
+    window.dispatchEvent(new CustomEvent('displayNameChange', { detail: displayName }));
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -151,7 +152,10 @@ export const Settings = () => {
   };
 
   const finishEdit = () => {
-    if (editingField === 'displayName' && editValue.trim()) setDisplayName(editValue.trim());
+    if (editingField === 'displayName' && editValue.trim()) {
+      setDisplayName(editValue.trim());
+      window.dispatchEvent(new CustomEvent('displayNameChange', { detail: editValue.trim() }));
+    }
     if (editingField === 'email' && editValue.includes('@')) setEmail(editValue.trim());
     setEditingField(null);
   };
@@ -458,7 +462,7 @@ export const Settings = () => {
           <SettingsIcon className="text-neon-cyan w-8 h-8" />
           System Preferences
         </h1>
-        <p className="text-gray-400">Manage your CloudGuardian AI configuration and integrations.</p>
+        <p className="text-gray-400">Manage your CLOUDCORE X configuration and integrations.</p>
       </motion.div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         <motion.div variants={itemVariants} className="space-y-2">
