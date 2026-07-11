@@ -110,6 +110,24 @@
   .feed-scroll::-webkit-scrollbar-thumb:hover { background: rgba(6,182,212,0.5); }
 }
 
+/* Remove focus outlines on chart SVG elements */
+.recharts-wrapper *:focus,
+.recharts-wrapper *:focus-visible,
+.recharts-surface:focus,
+.recharts-surface:focus-visible {
+  outline: none !important;
+}
+
+.recharts-bar-rectangle:focus,
+.recharts-bar-rectangle:focus-visible {
+  outline: none !important;
+}
+
+svg:focus,
+svg:focus-visible {
+  outline: none !important;
+}
+
 /* Scan line animation */
 .scan-line {
   position: absolute;
