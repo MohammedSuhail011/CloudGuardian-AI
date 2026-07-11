@@ -128,6 +128,25 @@ svg:focus-visible {
   outline: none !important;
 }
 
+/* Make Recharts backgrounds translucent */
+.recharts-wrapper,
+.recharts-surface,
+.recharts-wrapper rect[fill="white"],
+.recharts-wrapper rect[fill="#fff"],
+.recharts-wrapper rect[fill="#ffffff"] {
+  background: transparent !important;
+  fill: transparent !important;
+}
+
+.recharts-wrapper {
+  background: transparent !important;
+}
+
+/* Translucent tooltip default background */
+.recharts-tooltip-wrapper {
+  background: transparent !important;
+}
+
 /* Scan line animation */
 .scan-line {
   position: absolute;
