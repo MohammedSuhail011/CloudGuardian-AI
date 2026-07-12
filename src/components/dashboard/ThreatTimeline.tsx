@@ -1,11 +1,11 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Activity } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { TimelinePoint } from '../../utils/useDashboardData';
 import { renderActiveDot } from '../../utils/chartConfig';
 
-function CustomTooltip({ active, payload }: any) {
+const CustomTooltip = React.memo(function CustomTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null;
   const data = payload[0].payload as TimelinePoint;
   return (
@@ -36,17 +36,18 @@ function CustomTooltip({ active, payload }: any) {
       )}
     </motion.div>
   );
-}
+});
 
 interface ThreatTimelineProps {
   data: TimelinePoint[];
   onPointClick?: (point: TimelinePoint) => void;
 }
 
-export const ThreatTimeline: React.FC<ThreatTimelineProps> = ({ data, onPointClick }) => {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+export const ThreatTimeline: React.FC<ThreatTimelineProps> = React.memo(({ data, onPointClick }) => {
   const [clickedPoint, setClickedPoint] = useState<TimelinePoint | null>(null);
   const [isDrawing, setIsDrawing] = useState(true);
+  const activeIndexRef = useRef<number | null>(null);
+  const [, forceUpdate] = useState(0);
 
   const enrichedData = useMemo(() =>
     data.map(p => ({ ...p, drawValue: 0 })),
@@ -68,7 +69,7 @@ export const ThreatTimeline: React.FC<ThreatTimelineProps> = ({ data, onPointCli
 
   const dotRenderer = useCallback((props: any) => {
     const { cx, cy, index } = props;
-    const isActive = activeIndex === index;
+    const isActive = activeIndexRef.current === index;
     return (
       <circle
         key={`dot-${index}`}
@@ -81,7 +82,7 @@ export const ThreatTimeline: React.FC<ThreatTimelineProps> = ({ data, onPointCli
         className="transition-all duration-200 cursor-pointer"
       />
     );
-  }, [activeIndex]);
+  }, []);
 
   return (
     <>
@@ -91,10 +92,11 @@ export const ThreatTimeline: React.FC<ThreatTimelineProps> = ({ data, onPointCli
             data={enrichedData}
             onMouseMove={(e) => {
               if (e?.activeTooltipIndex !== undefined) {
-                setActiveIndex(e.activeTooltipIndex as number);
+                activeIndexRef.current = e.activeTooltipIndex as number;
+                forceUpdate(n => n + 1);
               }
             }}
-            onMouseLeave={() => setActiveIndex(null)}
+            onMouseLeave={() => { activeIndexRef.current = null; forceUpdate(n => n + 1); }}
             onClick={handleClick}
           >
             <defs>
@@ -188,4 +190,4 @@ export const ThreatTimeline: React.FC<ThreatTimelineProps> = ({ data, onPointCli
       </AnimatePresence>
     </>
   );
-};
+});

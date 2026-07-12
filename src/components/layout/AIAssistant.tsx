@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Terminal, Loader2 } from 'lucide-react';
 
@@ -56,9 +56,9 @@ export const AIAssistant: React.FC = () => {
   const [provider, setProvider] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -70,7 +70,7 @@ export const AIAssistant: React.FC = () => {
     return () => { abortRef.current?.abort(); };
   }, []);
 
-  const handleSend = async (e?: React.FormEvent) => {
+  const handleSend = useCallback(async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!input.trim() || isLoading) return;
 
@@ -110,7 +110,7 @@ export const AIAssistant: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [input, isLoading]);
 
   return (
     <>

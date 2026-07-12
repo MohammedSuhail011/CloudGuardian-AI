@@ -194,25 +194,25 @@ function ThreatDot({
 
       {/* Outer rotating ring */}
       <mesh ref={outerRingRef} rotation={[Math.PI / 3, 0, 0]}>
-        <ringGeometry args={[0.18, 0.2, 16]} />
+        <ringGeometry args={[0.18, 0.2, 10]} />
         <meshBasicMaterial color={sevColor} transparent opacity={0.08} side={DoubleSide} depthWrite={false} />
       </mesh>
 
       {/* Glow sphere */}
       <mesh ref={glowRef}>
-        <sphereGeometry args={[0.16, 8, 8]} />
+        <sphereGeometry args={[0.16, 6, 6]} />
         <meshBasicMaterial color={sevColor} transparent opacity={0.12} depthWrite={false} />
       </mesh>
 
       {/* Spinning ring */}
       <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.1, 0.14, 16]} />
+        <ringGeometry args={[0.1, 0.14, 12]} />
         <meshBasicMaterial color={sevColor} transparent opacity={0.25} side={DoubleSide} depthWrite={false} />
       </mesh>
 
       {/* Core dot */}
       <mesh ref={meshRef} onClick={handleClick}>
-        <sphereGeometry args={[0.055, 10, 10]} />
+        <sphereGeometry args={[0.055, 6, 6]} />
         <meshBasicMaterial color={sevColor} transparent opacity={0.95} />
       </mesh>
 
@@ -355,7 +355,7 @@ function ExpandingRings() {
           ref={(el) => { refs.current[i] = el; }}
           rotation={[-Math.PI / 2, 0, 0]}
         >
-          <ringGeometry args={[0.02, 0.04, 32]} />
+          <ringGeometry args={[0.02, 0.04, 16]} />
           <meshBasicMaterial color="#06b6d4" transparent opacity={0.15} side={DoubleSide} depthWrite={false} />
         </mesh>
       ))}
@@ -383,11 +383,11 @@ function ScanLine() {
   return (
     <>
       <mesh ref={ref}>
-        <ringGeometry args={[2.05, 2.05, 48]} />
+        <ringGeometry args={[2.05, 2.05, 24]} />
         <meshBasicMaterial color="#06b6d4" transparent opacity={0} side={DoubleSide} depthWrite={false} />
       </mesh>
       <mesh ref={ref2}>
-        <ringGeometry args={[2.08, 2.08, 48]} />
+        <ringGeometry args={[2.08, 2.08, 24]} />
         <meshBasicMaterial color="#8b5cf6" transparent opacity={0} side={DoubleSide} depthWrite={false} />
       </mesh>
     </>
@@ -462,7 +462,7 @@ function DataStreams() {
     <>
       {data.map((_, i) => (
         <mesh key={i} ref={(el) => { refs.current[i] = el; }}>
-          <sphereGeometry args={[1, 8, 8]} />
+          <sphereGeometry args={[1, 4, 4]} />
           <meshBasicMaterial color="#22d3ee" transparent opacity={0} depthWrite={false} />
         </mesh>
       ))}
@@ -506,11 +506,11 @@ function AnimatedLines() {
         <group key={i}>
           <Line points={line.points} color={line.color} lineWidth={1} transparent opacity={0.25} />
           <mesh position={line.start}>
-            <sphereGeometry args={[0.025, 8, 8]} />
+            <sphereGeometry args={[0.025, 4, 4]} />
             <meshBasicMaterial color="#ef4444" transparent opacity={0.6} />
           </mesh>
           <mesh position={line.end}>
-            <sphereGeometry args={[0.025, 8, 8]} />
+            <sphereGeometry args={[0.025, 4, 4]} />
             <meshBasicMaterial color="#06b6d4" transparent opacity={0.6} />
           </mesh>
         </group>
@@ -520,7 +520,7 @@ function AnimatedLines() {
           key={`trail-${i}`}
           ref={(el) => { lineRefs.current[i] = el; }}
         >
-          <sphereGeometry args={[0.035, 8, 8]} />
+          <sphereGeometry args={[0.035, 6, 6]} />
           <meshBasicMaterial color={line.color} transparent opacity={0.7} />
         </mesh>
       ))}
@@ -558,15 +558,15 @@ function OrbitalRings() {
   return (
     <>
       <mesh ref={ref1}>
-        <torusGeometry args={[2.5, 0.008, 8, 64]} />
+        <torusGeometry args={[2.5, 0.008, 6, 32]} />
         <meshBasicMaterial color="#06b6d4" transparent opacity={0.08} depthWrite={false} />
       </mesh>
       <mesh ref={ref2}>
-        <torusGeometry args={[2.8, 0.005, 8, 64]} />
+        <torusGeometry args={[2.8, 0.005, 6, 32]} />
         <meshBasicMaterial color="#8b5cf6" transparent opacity={0.06} depthWrite={false} />
       </mesh>
       <mesh ref={ref3}>
-        <torusGeometry args={[3.1, 0.004, 8, 64]} />
+        <torusGeometry args={[3.1, 0.004, 6, 32]} />
         <meshBasicMaterial color="#3b82f6" transparent opacity={0.04} depthWrite={false} />
       </mesh>
     </>
@@ -603,7 +603,7 @@ function HoloSegments() {
           key={i}
           ref={(el) => { refs.current[i] = el; }}
         >
-          <torusGeometry args={[s.radius, 0.003, 4, 32, s.arc]} />
+          <torusGeometry args={[s.radius, 0.003, 3, 24, s.arc]} />
           <meshBasicMaterial color={s.color} transparent opacity={0.06} depthWrite={false} />
         </mesh>
       ))}
@@ -641,27 +641,27 @@ function GlobeMesh({ onDotClick }: { onDotClick: (dot: ThreatDotData) => void })
       </mesh>
 
       {/* Main dark sphere */}
-      <Sphere args={[2, 48, 48]}>
+      <Sphere args={[2, 32, 32]}>
         <meshBasicMaterial color="#020617" transparent opacity={0.9} />
       </Sphere>
 
       {/* Inner glow layer */}
-      <Sphere args={[1.98, 24, 24]}>
+      <Sphere args={[1.98, 16, 16]}>
         <meshBasicMaterial color="#06b6d4" transparent opacity={0.06} />
       </Sphere>
 
       {/* Primary wireframe */}
-      <Sphere args={[2.01, 24, 24]}>
+      <Sphere args={[2.01, 16, 16]}>
         <meshBasicMaterial color="#06b6d4" wireframe transparent opacity={0.15} />
       </Sphere>
 
       {/* Secondary wireframe (purple, different density) */}
-      <Sphere args={[2.025, 16, 16]}>
+      <Sphere args={[2.025, 12, 12]}>
         <meshBasicMaterial color="#8b5cf6" wireframe transparent opacity={0.07} />
       </Sphere>
 
       {/* Tertiary wireframe (blue, fine) */}
-      <Sphere args={[2.04, 32, 32]}>
+      <Sphere args={[2.04, 16, 16]}>
         <meshBasicMaterial color="#3b82f6" wireframe transparent opacity={0.03} />
       </Sphere>
 
@@ -673,17 +673,17 @@ function GlobeMesh({ onDotClick }: { onDotClick: (dot: ThreatDotData) => void })
 
       {/* Atmosphere layers */}
       <mesh ref={outerGlowRef}>
-        <Sphere args={[2.35, 24, 24]}>
+        <Sphere args={[2.35, 12, 12]}>
           <meshBasicMaterial color="#3b82f6" transparent opacity={0.04} side={BackSide} />
         </Sphere>
       </mesh>
-      <Sphere args={[2.5, 16, 16]}>
+      <Sphere args={[2.5, 8, 8]}>
         <meshBasicMaterial color="#06b6d4" transparent opacity={0.025} side={BackSide} />
       </Sphere>
-      <Sphere args={[2.8, 12, 12]}>
+      <Sphere args={[2.8, 8, 8]}>
         <meshBasicMaterial color="#8b5cf6" transparent opacity={0.015} side={BackSide} />
       </Sphere>
-      <Sphere args={[3.2, 8, 8]}>
+      <Sphere args={[3.2, 6, 6]}>
         <meshBasicMaterial color="#06b6d4" transparent opacity={0.008} side={BackSide} />
       </Sphere>
 
@@ -723,7 +723,7 @@ export const CyberGlobe = () => {
 
   return (
     <div className="w-full h-full relative cursor-move">
-      <Canvas camera={{ position: [0, 0, 5.5], fov: 42 }}>
+      <Canvas camera={{ position: [0, 0, 5.5], fov: 42 }} dpr={[1, 1.5]} gl={{ antialias: false, powerPreference: 'low-power' }}>
         <ambientLight intensity={0.3} />
         <GlobeMesh onDotClick={handleDotClick} />
         <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.8} />

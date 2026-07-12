@@ -21,10 +21,14 @@ export const StarField: React.FC = () => {
     if (!ctx) return;
 
     let animId: number;
+    const SCALE = 0.75;
     let w = window.innerWidth;
     let h = window.innerHeight;
-    canvas.width = w;
-    canvas.height = h;
+    canvas.width = Math.ceil(w * SCALE);
+    canvas.height = Math.ceil(h * SCALE);
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.scale(SCALE, SCALE);
 
     const STAR_COUNT = 120;
     const CONNECT_DIST = 180;
@@ -183,16 +187,24 @@ export const StarField: React.FC = () => {
 
     animId = requestAnimationFrame(draw);
 
+    let resizeRaf = 0;
     const resize = () => {
-      w = window.innerWidth;
-      h = window.innerHeight;
-      canvas.width = w;
-      canvas.height = h;
+      cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(() => {
+        w = window.innerWidth;
+        h = window.innerHeight;
+        canvas.width = Math.ceil(w * SCALE);
+        canvas.height = Math.ceil(h * SCALE);
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        ctx.scale(SCALE, SCALE);
+      });
     };
     window.addEventListener('resize', resize);
 
     return () => {
       cancelAnimationFrame(animId);
+      cancelAnimationFrame(resizeRaf);
       window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', onVisibility);
     };

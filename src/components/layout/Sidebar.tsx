@@ -14,7 +14,7 @@ const navItems = [
   { path: '/settings', name: 'Settings', icon: Settings },
 ];
 
-export const Sidebar: React.FC = () => {
+export const Sidebar: React.FC = React.memo(() => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [avatar, setAvatar] = useState(() => {
     try {
@@ -75,7 +75,7 @@ export const Sidebar: React.FC = () => {
     return () => clearTimeout(timer);
   }, [updateSlider, location.pathname]);
 
-  const handleProfileClick = () => {
+  const handleProfileClick = useCallback(() => {
     if (profileRef.current) {
       const rect = profileRef.current.getBoundingClientRect();
       setExpandOrigin({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
@@ -85,7 +85,16 @@ export const Sidebar: React.FC = () => {
       setProfileExpanding(false);
       navigate('/settings');
     }, 800);
-  };
+  }, [navigate]);
+
+  const navLinkClassName = useCallback(({ isActive }: { isActive: boolean }) =>
+    `flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 ease-out group relative ${
+      isActive
+        ? isExpanded
+          ? 'text-white bg-gradient-to-r from-neon-cyan/15 to-transparent shadow-[inset_0_0_20px_rgba(6,182,212,0.08)]'
+          : 'text-white bg-neon-cyan/20'
+        : 'text-gray-400 hover:text-white hover:bg-cyber-card hover:translate-x-1'
+    }`, [isExpanded]);
 
   return (
     <motion.aside
@@ -238,15 +247,7 @@ export const Sidebar: React.FC = () => {
               to={item.path}
               ref={activeIndex === idx ? activeItemRef : undefined}
               onClick={() => { setTimeout(updateSlider, 50); }}
-              className={({ isActive }) =>
-                `flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 ease-out group relative ${
-                  isActive
-                    ? isExpanded
-                      ? 'text-white bg-gradient-to-r from-neon-cyan/15 to-transparent shadow-[inset_0_0_20px_rgba(6,182,212,0.08)]'
-                      : 'text-white bg-neon-cyan/20'
-                    : 'text-gray-400 hover:text-white hover:bg-cyber-card hover:translate-x-1'
-                }`
-              }
+              className={navLinkClassName}
             >
               <Icon className="w-5 h-5 flex-shrink-0 group-hover:text-neon-cyan transition-colors" />
               {isExpanded && (
@@ -403,4 +404,4 @@ export const Sidebar: React.FC = () => {
       </AnimatePresence>
     </motion.aside>
   );
-};
+});

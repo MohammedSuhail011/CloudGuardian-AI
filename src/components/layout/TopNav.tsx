@@ -17,7 +17,7 @@ const Clock: React.FC = React.memo(() => {
   return <span ref={ref}>{new Date().toLocaleTimeString()}</span>;
 });
 
-export const TopNav: React.FC = () => {
+export const TopNav: React.FC = React.memo(() => {
   const [showNotifications, setShowNotifications] = useState(false);
   const navigate = useNavigate();
   const bellRef = useRef<HTMLButtonElement>(null);
@@ -118,4 +118,4 @@ export const TopNav: React.FC = () => {
       <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-50"></div>
     </header>
   );
-};
+});
