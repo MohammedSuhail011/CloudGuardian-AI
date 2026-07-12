@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Terminal, Loader2 } from 'lucide-react';
+import { useDataset } from '../../store/DatasetContext';
+import { buildChatContext } from '../../utils/chatContextBuilder';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -55,6 +57,7 @@ export const AIAssistant: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [provider, setProvider] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { resources, analysis, datasetName } = useDataset();
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -83,11 +86,13 @@ export const AIAssistant: React.FC = () => {
     const controller = new AbortController();
     abortRef.current = controller;
 
+    const context = buildChatContext(resources, analysis, datasetName);
+
     try {
       const response = await fetch(`${API_BASE}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ message: userMessage, context }),
         signal: controller.signal,
       });
       
@@ -110,7 +115,7 @@ export const AIAssistant: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading]);
+  }, [input, isLoading, resources, analysis, datasetName]);
 
   return (
     <>

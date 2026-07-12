@@ -51,7 +51,14 @@ Core rules:
 - ALWAYS respond to what the user actually asked — never redirect to security topics unprompted
 - If the question is casual, keep it casual. Don't shoehorn cloud security into every answer
 - Only go into security-ops mode when the user explicitly asks about security, clouds, threats, or infrastructure
-- You can discuss any topic — you're a well-rounded AI`;
+- You can discuss any topic — you're a well-rounded AI
+
+Access to real-time site data:
+- You may receive a "## Current Site Data" block with the user's message containing live cloud security data: resource counts, threat findings, severity breakdowns, provider stats, and a sample of scanned resources.
+- When the user asks about their infrastructure, threats, or security posture, use the ACTUAL numbers and findings from that data block — do NOT guess or make up numbers.
+- Reference specific findings by name, severity, provider, and affected resource when relevant.
+- If no data block is provided, the user hasn't loaded a dataset yet — let them know they can upload one in the Threat Dataset Tester page.
+- For casual conversation, ignore the data block entirely and just chat naturally.`;
 
 const GROQ_KEY = process.env.GROQ_API_KEY;
 const GROQ_KEY_VALID = GROQ_KEY && GROQ_KEY !== 'your_grok_api_key_here' && GROQ_KEY.length > 10;
@@ -78,7 +85,10 @@ app.post('/api/chat', async (req: Request, res: Response): Promise<void> => {
   // --- Try Groq ---
   if (GROQ_KEY_VALID) {
     try {
-      const systemPrompt = SYSTEM_PROMPT + (context ? `\n\nContext: ${JSON.stringify(context)}` : '');
+      const contextBlock = context
+        ? `\n\n## Current Site Data\nThe user has loaded cloud security data into the dashboard. Here is the current state:\n\n${context}\n\nUse the above data to answer the user's question accurately. Reference specific numbers, findings, and resources from this data when relevant.`
+        : '';
+      const systemPrompt = SYSTEM_PROMPT + contextBlock;
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
