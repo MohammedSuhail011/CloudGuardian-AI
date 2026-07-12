@@ -72,6 +72,7 @@
   .scrollbar-cyber {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    contain: layout style;
   }
 
   /* Smooth transitions for interactive elements (exclude buttons — framer-motion handles those) */
@@ -95,12 +96,38 @@
     transform: translateZ(0);
     backface-visibility: hidden;
   }
+
+  /* Canvas elements - GPU compositing */
+  canvas {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+
+  /* Animated background layers - promote to compositor */
+  .bg-orb, .bg-scan-line, .bg-radial-pulse, .data-rain-column, .bg-noise, .bg-interference {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* Animated UI elements - compositor promotion */
+  .scan-line, .cyber-grid, .shimmer, .skeleton-smooth, .animate-pulse-slow {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+
+  /* Three.js canvas - dedicated layer */
+  .r3f-canvas, canvas[class*="three"] {
+    will-change: transform;
+    transform: translateZ(0);
+  }
 }
 
 @layer utilities {
   .glass-panel {
     @apply bg-cyber-card backdrop-blur-md border border-cyber-border rounded-xl shadow-[0_0_15px_rgba(56,189,248,0.1)];
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease;
+    contain: layout style;
   }
 
   .glass-panel:hover {

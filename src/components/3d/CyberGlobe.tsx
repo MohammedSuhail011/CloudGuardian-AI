@@ -188,31 +188,31 @@ function ThreatDot({
     <group position={pos}>
       {/* Energy beam shooting outward */}
       <mesh ref={beamRef} position={normal.clone().multiplyScalar(0.15)}>
-        <cylinderGeometry args={[0.005, 0.02, 0.5, 6]} />
+        <cylinderGeometry args={[0.005, 0.02, 0.5, 4]} />
         <meshBasicMaterial color={sevColor} transparent opacity={0.1} depthWrite={false} />
       </mesh>
 
       {/* Outer rotating ring */}
       <mesh ref={outerRingRef} rotation={[Math.PI / 3, 0, 0]}>
-        <ringGeometry args={[0.18, 0.2, 24]} />
+        <ringGeometry args={[0.18, 0.2, 16]} />
         <meshBasicMaterial color={sevColor} transparent opacity={0.08} side={DoubleSide} depthWrite={false} />
       </mesh>
 
       {/* Glow sphere */}
       <mesh ref={glowRef}>
-        <sphereGeometry args={[0.16, 12, 12]} />
+        <sphereGeometry args={[0.16, 8, 8]} />
         <meshBasicMaterial color={sevColor} transparent opacity={0.12} depthWrite={false} />
       </mesh>
 
       {/* Spinning ring */}
       <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.1, 0.14, 20]} />
+        <ringGeometry args={[0.1, 0.14, 16]} />
         <meshBasicMaterial color={sevColor} transparent opacity={0.25} side={DoubleSide} depthWrite={false} />
       </mesh>
 
       {/* Core dot */}
       <mesh ref={meshRef} onClick={handleClick}>
-        <sphereGeometry args={[0.055, 14, 14]} />
+        <sphereGeometry args={[0.055, 10, 10]} />
         <meshBasicMaterial color={sevColor} transparent opacity={0.95} />
       </mesh>
 
@@ -226,7 +226,7 @@ function ThreatDot({
 }
 
 function OrbitParticles() {
-  const count = 80;
+  const count = 60;
   const geo = useMemo(() => {
     const g = new BufferGeometry();
     const pos = new Float32Array(count * 3);
@@ -264,7 +264,7 @@ function OrbitParticles() {
 
 // Inner dust cloud
 function InnerDust() {
-  const count = 60;
+  const count = 40;
   const geo = useMemo(() => {
     const g = new BufferGeometry();
     const pos = new Float32Array(count * 3);
@@ -355,7 +355,7 @@ function ExpandingRings() {
           ref={(el) => { refs.current[i] = el; }}
           rotation={[-Math.PI / 2, 0, 0]}
         >
-          <ringGeometry args={[0.02, 0.04, 48]} />
+          <ringGeometry args={[0.02, 0.04, 32]} />
           <meshBasicMaterial color="#06b6d4" transparent opacity={0.15} side={DoubleSide} depthWrite={false} />
         </mesh>
       ))}
@@ -383,11 +383,11 @@ function ScanLine() {
   return (
     <>
       <mesh ref={ref}>
-        <ringGeometry args={[2.05, 2.05, 64]} />
+        <ringGeometry args={[2.05, 2.05, 48]} />
         <meshBasicMaterial color="#06b6d4" transparent opacity={0} side={DoubleSide} depthWrite={false} />
       </mesh>
       <mesh ref={ref2}>
-        <ringGeometry args={[2.08, 2.08, 64]} />
+        <ringGeometry args={[2.08, 2.08, 48]} />
         <meshBasicMaterial color="#8b5cf6" transparent opacity={0} side={DoubleSide} depthWrite={false} />
       </mesh>
     </>
@@ -421,7 +421,7 @@ function ThreatPillars() {
           key={i}
           ref={(el) => { refs.current[i] = el; }}
         >
-          <cylinderGeometry args={[0.003, 0.015, 0.6, 4]} />
+          <cylinderGeometry args={[0.003, 0.015, 0.6, 3]} />
           <meshBasicMaterial
             color={data.severity === 'critical' ? '#ef4444' : data.severity === 'high' ? '#f97316' : '#eab308'}
             transparent
@@ -462,7 +462,7 @@ function DataStreams() {
     <>
       {data.map((_, i) => (
         <mesh key={i} ref={(el) => { refs.current[i] = el; }}>
-          <sphereGeometry args={[1, 10, 10]} />
+          <sphereGeometry args={[1, 8, 8]} />
           <meshBasicMaterial color="#22d3ee" transparent opacity={0} depthWrite={false} />
         </mesh>
       ))}
@@ -483,7 +483,7 @@ function AnimatedLines() {
       const curve = new QuadraticBezierCurve3(start, mid, end);
       const rand = Math.random();
       const color = rand > 0.6 ? '#ef4444' : rand > 0.3 ? '#06b6d4' : '#8b5cf6';
-      return { curve, points: curve.getPoints(24), start, end, color };
+      return { curve, points: curve.getPoints(16), start, end, color };
     });
   }, []);
 
@@ -520,7 +520,7 @@ function AnimatedLines() {
           key={`trail-${i}`}
           ref={(el) => { lineRefs.current[i] = el; }}
         >
-          <sphereGeometry args={[0.035, 10, 10]} />
+          <sphereGeometry args={[0.035, 8, 8]} />
           <meshBasicMaterial color={line.color} transparent opacity={0.7} />
         </mesh>
       ))}
@@ -558,15 +558,15 @@ function OrbitalRings() {
   return (
     <>
       <mesh ref={ref1}>
-        <torusGeometry args={[2.5, 0.008, 8, 128]} />
+        <torusGeometry args={[2.5, 0.008, 8, 64]} />
         <meshBasicMaterial color="#06b6d4" transparent opacity={0.08} depthWrite={false} />
       </mesh>
       <mesh ref={ref2}>
-        <torusGeometry args={[2.8, 0.005, 8, 128]} />
+        <torusGeometry args={[2.8, 0.005, 8, 64]} />
         <meshBasicMaterial color="#8b5cf6" transparent opacity={0.06} depthWrite={false} />
       </mesh>
       <mesh ref={ref3}>
-        <torusGeometry args={[3.1, 0.004, 8, 128]} />
+        <torusGeometry args={[3.1, 0.004, 8, 64]} />
         <meshBasicMaterial color="#3b82f6" transparent opacity={0.04} depthWrite={false} />
       </mesh>
     </>
@@ -603,7 +603,7 @@ function HoloSegments() {
           key={i}
           ref={(el) => { refs.current[i] = el; }}
         >
-          <torusGeometry args={[s.radius, 0.003, 4, 48, s.arc]} />
+          <torusGeometry args={[s.radius, 0.003, 4, 32, s.arc]} />
           <meshBasicMaterial color={s.color} transparent opacity={0.06} depthWrite={false} />
         </mesh>
       ))}
@@ -631,37 +631,37 @@ function GlobeMesh({ onDotClick }: { onDotClick: (dot: ThreatDotData) => void })
   return (
     <group>
       {/* Inner core glow */}
-      <Sphere args={[1.5, 16, 16]}>
+      <Sphere args={[1.5, 12, 12]}>
         <meshBasicMaterial color="#06b6d4" transparent opacity={0.02} side={BackSide} />
       </Sphere>
       <mesh ref={coreRef}>
-        <Sphere args={[1.8, 12, 12]}>
+        <Sphere args={[1.8, 8, 8]}>
           <meshBasicMaterial color="#06b6d4" transparent opacity={0.04} side={BackSide} />
         </Sphere>
       </mesh>
 
       {/* Main dark sphere */}
-      <Sphere args={[2, 64, 64]}>
+      <Sphere args={[2, 48, 48]}>
         <meshBasicMaterial color="#020617" transparent opacity={0.9} />
       </Sphere>
 
       {/* Inner glow layer */}
-      <Sphere args={[1.98, 32, 32]}>
+      <Sphere args={[1.98, 24, 24]}>
         <meshBasicMaterial color="#06b6d4" transparent opacity={0.06} />
       </Sphere>
 
       {/* Primary wireframe */}
-      <Sphere args={[2.01, 32, 32]}>
+      <Sphere args={[2.01, 24, 24]}>
         <meshBasicMaterial color="#06b6d4" wireframe transparent opacity={0.15} />
       </Sphere>
 
       {/* Secondary wireframe (purple, different density) */}
-      <Sphere args={[2.025, 20, 20]}>
+      <Sphere args={[2.025, 16, 16]}>
         <meshBasicMaterial color="#8b5cf6" wireframe transparent opacity={0.07} />
       </Sphere>
 
       {/* Tertiary wireframe (blue, fine) */}
-      <Sphere args={[2.04, 48, 48]}>
+      <Sphere args={[2.04, 32, 32]}>
         <meshBasicMaterial color="#3b82f6" wireframe transparent opacity={0.03} />
       </Sphere>
 
@@ -673,17 +673,17 @@ function GlobeMesh({ onDotClick }: { onDotClick: (dot: ThreatDotData) => void })
 
       {/* Atmosphere layers */}
       <mesh ref={outerGlowRef}>
-        <Sphere args={[2.35, 32, 32]}>
+        <Sphere args={[2.35, 24, 24]}>
           <meshBasicMaterial color="#3b82f6" transparent opacity={0.04} side={BackSide} />
         </Sphere>
       </mesh>
-      <Sphere args={[2.5, 24, 24]}>
+      <Sphere args={[2.5, 16, 16]}>
         <meshBasicMaterial color="#06b6d4" transparent opacity={0.025} side={BackSide} />
       </Sphere>
-      <Sphere args={[2.8, 16, 16]}>
+      <Sphere args={[2.8, 12, 12]}>
         <meshBasicMaterial color="#8b5cf6" transparent opacity={0.015} side={BackSide} />
       </Sphere>
-      <Sphere args={[3.2, 12, 12]}>
+      <Sphere args={[3.2, 8, 8]}>
         <meshBasicMaterial color="#06b6d4" transparent opacity={0.008} side={BackSide} />
       </Sphere>
 

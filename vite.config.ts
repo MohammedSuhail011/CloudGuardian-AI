@@ -14,6 +14,12 @@ export default defineConfig({
           if (id.includes('node_modules/recharts')) {
             return 'recharts';
           }
+          if (id.includes('node_modules/framer-motion')) {
+            return 'framer';
+          }
+          if (id.includes('node_modules/lucide-react')) {
+            return 'icons';
+          }
         },
       },
     },

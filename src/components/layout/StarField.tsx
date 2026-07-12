@@ -28,6 +28,9 @@ export const StarField: React.FC = () => {
 
     const STAR_COUNT = 120;
     const CONNECT_DIST = 180;
+    let skip = 0;
+    let lastFrame = 0;
+    const frameInterval = 1000 / 50;
     const PATTERN_CYCLE = 6000;
 
     const stars: Star[] = [];
@@ -66,9 +69,12 @@ export const StarField: React.FC = () => {
     const onVisibility = () => { paused = document.hidden; };
     document.addEventListener('visibilitychange', onVisibility);
 
-    const draw = (_now: number) => {
+    const draw = (now: number) => {
       animId = requestAnimationFrame(draw);
       if (paused) return;
+      if (now - lastFrame < frameInterval) return;
+      lastFrame = now;
+      skip = (skip + 1) % 3;
 
       ctx.clearRect(0, 0, w, h);
       const elapsed = (Date.now() - startTime) / 1000;
@@ -83,20 +89,22 @@ export const StarField: React.FC = () => {
         if (s.y > h + 10) s.y = -10;
       }
 
-      // --- Phase 1: Draw proximity connections (always active) ---
-      for (let i = 0; i < stars.length; i++) {
-        for (let j = i + 1; j < stars.length; j++) {
-          const dx = stars[i].x - stars[j].x;
-          const dy = stars[i].y - stars[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < CONNECT_DIST) {
-            const alpha = 0.06 * (1 - dist / CONNECT_DIST);
-            ctx.beginPath();
-            ctx.moveTo(stars[i].x, stars[i].y);
-            ctx.lineTo(stars[j].x, stars[j].y);
-            ctx.strokeStyle = `rgba(6, 182, 212, ${alpha})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
+      // --- Phase 1: Draw proximity connections (throttled) ---
+      if (skip === 0) {
+        for (let i = 0; i < stars.length; i++) {
+          for (let j = i + 1; j < stars.length; j++) {
+            const dx = stars[i].x - stars[j].x;
+            const dy = stars[i].y - stars[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < CONNECT_DIST) {
+              const alpha = 0.06 * (1 - dist / CONNECT_DIST);
+              ctx.beginPath();
+              ctx.moveTo(stars[i].x, stars[i].y);
+              ctx.lineTo(stars[j].x, stars[j].y);
+              ctx.strokeStyle = `rgba(6, 182, 212, ${alpha})`;
+              ctx.lineWidth = 0.5;
+              ctx.stroke();
+            }
           }
         }
       }

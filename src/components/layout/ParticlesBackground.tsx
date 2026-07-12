@@ -15,7 +15,7 @@ export const ParticlesBackground: React.FC = () => {
     canvas.width = w;
     canvas.height = h;
 
-    const count = 55;
+    const count = 40;
     const particles: { x: number; y: number; vx: number; vy: number; r: number; a: number }[] = [];
 
     for (let i = 0; i < count; i++) {
@@ -63,12 +63,12 @@ export const ParticlesBackground: React.FC = () => {
           for (let j = i + 1; j < particles.length; j++) {
             const dx = particles[i].x - particles[j].x;
             const dy = particles[i].y - particles[j].y;
-            const dist = dx * dx + dy * dy;
-            if (dist < 14400) {
+            const distSq = dx * dx + dy * dy;
+            if (distSq < 14400) {
               ctx.beginPath();
               ctx.moveTo(particles[i].x, particles[i].y);
               ctx.lineTo(particles[j].x, particles[j].y);
-              ctx.strokeStyle = `rgba(6, 182, 212, ${0.08 * (1 - Math.sqrt(dist) / 120)})`;
+              ctx.strokeStyle = `rgba(6, 182, 212, ${0.08 * (1 - Math.sqrt(distSq) / 120)})`;
               ctx.stroke();
             }
           }

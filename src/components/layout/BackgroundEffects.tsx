@@ -2,7 +2,7 @@ import React from 'react';
 
 export const BackgroundEffects: React.FC = () => {
   return (
-    <div className="fixed inset-0 pointer-events-none z-[1] overflow-hidden">
+    <div className="fixed inset-0 pointer-events-none z-[1] overflow-hidden" style={{ contain: 'strict', contentVisibility: 'auto' }}>
       {/* Floating gradient orbs — large blurred blobs that drift slowly */}
       <div className="bg-orb bg-orb-1" />
       <div className="bg-orb bg-orb-2" />
