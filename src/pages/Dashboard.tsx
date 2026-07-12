@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, AlertTriangle, CheckCircle, Activity, Server, Lock, Eye, Zap, Clock, ArrowRight, FileText, Download, X, ChevronRight, Bug, Database } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, Activity, Server, Lock, Eye, Zap, Clock, ArrowRight, FileText, Download, X, ChevronRight, Bug, Database, Loader2 } from 'lucide-react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 const CyberGlobe = React.lazy(() => import('../components/3d/CyberGlobe').then(m => ({ default: m.CyberGlobe })));
 import { StatCard } from '../components/dashboard/StatCard';
@@ -11,6 +11,7 @@ import { useDataset } from '../store/DatasetContext';
 import { useNavigate } from 'react-router-dom';
 import type { FeedItem } from '../types/threatTester';
 import { tooltipContentStyle, tooltipCursorStyle, PieActiveShape, AnimatedBarShape } from '../utils/chartConfig';
+import { analyzeResources } from '../utils/threatAnalysis';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -58,55 +59,6 @@ function EmptyChart({ message }: { message: string }) {
         <BarChart className="w-10 h-10 text-gray-600 mx-auto mb-3" />
         <p className="text-gray-500 text-sm">{message}</p>
       </div>
-    </div>
-  );
-}
-
-function ScanningRadar() {
-  return (
-    <div className="relative w-32 h-32 mx-auto">
-      <div className="absolute inset-0 rounded-full border-2 border-neon-cyan/30 animate-spin-slow" style={{ animationDuration: '4s' }} />
-      <div className="absolute inset-2 rounded-full border border-neon-cyan/20 animate-spin-slow" style={{ animationDuration: '3s', animationDirection: 'reverse' }} />
-      <div className="absolute inset-4 rounded-full border border-neon-purple/20 animate-spin-slow" style={{ animationDuration: '2s' }} />
-      <div className="absolute inset-0 flex items-center justify-center">
-        <Shield className="w-10 h-10 text-neon-cyan animate-pulse-glow" />
-      </div>
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1/2 bg-gradient-to-b from-neon-cyan to-transparent rounded-full animate-spin-slow origin-bottom" style={{ animationDuration: '2s' }} />
-    </div>
-  );
-}
-
-function ThreatHuntAnimation() {
-  const [dots, setDots] = useState<{ x: number; y: number; id: number }[]>([]);
-  const idRef = useRef(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDots(prev => {
-        const next = [...prev, { x: Math.random() * 100, y: Math.random() * 100, id: idRef.current++ }];
-        return next.slice(-20);
-      });
-    }, 300);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="relative w-32 h-32 mx-auto rounded-xl bg-cyber-dark/80 border border-cyber-border overflow-hidden">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwaDQwdjQwSDB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTAgMjBoMjBNMjAgMHYyMCIgc3Ryb2tlPSJyZ2JhKDYsIDE4MiwgMjEyLCAwLjA4KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9zdmc+')] opacity-50" />
-      <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent animate-scan" />
-      <div className="absolute top-0 left-0 h-full w-0.5 bg-gradient-to-b from-transparent via-neon-cyan to-transparent" style={{ animation: 'scan 3s linear infinite', animationDelay: '1.5s' }} />
-      <Eye className="absolute inset-0 m-auto w-8 h-8 text-neon-purple animate-pulse-glow z-10" />
-      {dots.map(d => (
-        <motion.div
-          key={d.id}
-          initial={{ opacity: 1, scale: 1 }}
-          animate={{ opacity: 0, scale: 0 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.2 }}
-          className="absolute w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.8)] pointer-events-none z-20"
-          style={{ left: `${d.x}%`, top: `${d.y}%` }}
-        />
-      ))}
     </div>
   );
 }
@@ -241,6 +193,40 @@ function CharacterSVG({ type }: { type: string }) {
   }
 }
 
+const actionLabels: Record<string, string> = {
+  scan: 'Scanning infrastructure...',
+  hunt: 'Hunting for threats...',
+  report: 'Generating report...',
+  alerts: 'Checking alerts...',
+};
+
+const actionColors: Record<string, { ring: string; spin: string; text: string }> = {
+  scan: { ring: 'border-neon-cyan/40', spin: 'text-neon-cyan', text: 'text-neon-cyan' },
+  hunt: { ring: 'border-neon-purple/40', spin: 'text-neon-purple', text: 'text-neon-purple' },
+  report: { ring: 'border-neon-green/40', spin: 'text-neon-green', text: 'text-neon-green' },
+  alerts: { ring: 'border-orange-500/40', spin: 'text-orange-500', text: 'text-orange-500' },
+};
+
+function ModalLoadingOverlay({ actionId }: { actionId: string }) {
+  const colors = actionColors[actionId] || actionColors.scan;
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+      className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-cyber-card/90 backdrop-blur-sm rounded-xl"
+    >
+      <div className="relative w-16 h-16 mb-4">
+        <div className={`absolute inset-0 rounded-full border-2 ${colors.ring} border-t-current animate-spin`} style={{ animationDuration: '1s' }} />
+        <div className="absolute inset-2 rounded-full border border-current/20 animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }} />
+        <Loader2 className={`absolute inset-0 m-auto w-6 h-6 ${colors.spin} animate-pulse`} />
+      </div>
+      <p className={`text-sm font-mono ${colors.text}`}>{actionLabels[actionId] || 'Processing...'}</p>
+    </motion.div>
+  );
+}
+
 const quickActions = [
   { id: 'scan', label: 'Run Compliance Scan', icon: Shield, gradient: ['#0b2b4a', '#0a4d6e'], glowColor: '#06b6d4', desc: 'CIS/NIST benchmark audit' },
   { id: 'hunt', label: 'Threat Hunt', icon: Eye, gradient: ['#1e1035', '#3b1f6e'], glowColor: '#8b5cf6', desc: 'AI-powered anomaly detection' },
@@ -328,12 +314,10 @@ function getFeedItems(findings: { id: string; severity: string; threat: string; 
 
 export const Dashboard = () => {
   const [activeModal, setActiveModal] = useState<string | null>(null);
-  const [scanProgress, setScanProgress] = useState<'idle' | 'scanning' | 'done'>('idle');
-  const [huntResults, setHuntResults] = useState<{ found: number; time: string } | null>(null);
-  const [reportDone, setReportDone] = useState(false);
+  const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [globeVisible, setGlobeVisible] = useState(false);
   const globeRef = useRef<HTMLDivElement>(null);
-  const { resources, analysis, datasetName } = useDataset();
+  const { resources, analysis, datasetName, setAnalysis, setAnalyzing } = useDataset();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -344,14 +328,34 @@ export const Dashboard = () => {
     return () => obs.disconnect();
   }, []);
 
-  const openModal = (id: string) => {
+  const runAction = useCallback(async (id: string) => {
+    if (loadingAction) return;
+    setLoadingAction(id);
     setActiveModal(id);
-    if (id === 'scan') { setScanProgress('idle'); setTimeout(() => setScanProgress('scanning'), 300); setTimeout(() => setScanProgress('done'), 3500); }
-    if (id === 'hunt') { setHuntResults(null); setTimeout(() => setHuntResults({ found: Math.floor(Math.random() * 5) + 2, time: '12.4s' }), 3000); }
-    if (id === 'report') { setReportDone(false); setTimeout(() => setReportDone(true), 3000); }
-  };
+    try {
+      if (id === 'scan' && resources.length > 0) {
+        await new Promise(r => setTimeout(r, 0));
+        setAnalyzing(true);
+        const t0 = performance.now();
+        const result = analyzeResources(resources);
+        result.scanDuration = Math.round(performance.now() - t0);
+        setAnalysis(result);
+        setAnalyzing(false);
+      } else if (id === 'hunt') {
+        await new Promise(r => setTimeout(r, 0));
+      } else if (id === 'report') {
+        await new Promise(r => setTimeout(r, 0));
+      } else if (id === 'alerts') {
+        await new Promise(r => setTimeout(r, 0));
+      }
+    } catch {
+      // empty state will show naturally
+    } finally {
+      setLoadingAction(null);
+    }
+  }, [loadingAction, resources, setAnalysis, setAnalyzing]);
 
-  const closeModal = () => setActiveModal(null);
+  const closeModal = () => { setActiveModal(null); setLoadingAction(null); };
 
   const hasData = resources.length > 0;
   const hasAnalysis = analysis !== null;
@@ -630,6 +634,8 @@ export const Dashboard = () => {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {quickActions.map((action) => {
+                const isLoading = loadingAction === action.id;
+                const isDisabled = loadingAction !== null;
                 const charAnim = action.id === 'scan' ? { y: [0, -4, 0] }
                   : action.id === 'hunt' ? { y: [0, -3, 0], rotate: [-1, 1, -1] }
                   : action.id === 'report' ? { y: [0, -5, 0] }
@@ -637,34 +643,41 @@ export const Dashboard = () => {
                 return (
                   <motion.button
                     key={action.id}
-                    onClick={() => openModal(action.id)}
+                    onClick={() => runAction(action.id)}
+                    disabled={isDisabled}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, delay: quickActions.indexOf(action) * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    whileHover={{ scale: 1.04, y: -4 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="p-4 rounded-2xl text-left text-white border border-white/10 hover:border-white/25 shadow-lg relative overflow-hidden group/card"
+                    whileHover={isDisabled ? {} : { scale: 1.04, y: -4 }}
+                    whileTap={isDisabled ? {} : { scale: 0.97 }}
+                    className={`p-4 rounded-2xl text-left text-white border border-white/10 hover:border-white/25 shadow-lg relative overflow-hidden group/card transition-all duration-300 ${isDisabled ? 'cursor-not-allowed opacity-70' : ''}`}
                     style={{
                       background: `linear-gradient(145deg, ${action.gradient[0]}, ${action.gradient[1]})`,
                       boxShadow: `0 4px 24px ${action.glowColor}40`,
                     }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-                    <div className="absolute inset-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+                    {!isLoading && <div className="absolute inset-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />}
                     <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-white/5 group-hover/card:scale-[2] transition-transform duration-700 pointer-events-none" />
                     <div className="flex justify-center mb-3 relative">
                       <motion.div
-                        animate={charAnim}
-                        transition={{ duration: action.id === 'report' ? 3 : 2.5, ease: "easeInOut" }}
+                        animate={isLoading ? { scale: [1, 0.9, 1] } : charAnim}
+                        transition={{ duration: isLoading ? 1.2 : action.id === 'report' ? 3 : 2.5, ease: "easeInOut", repeat: isLoading ? Infinity : 0 }}
                         className="relative"
                       >
-                        <CharacterSVG type={action.id} />
+                        {isLoading ? (
+                          <Loader2 className="w-14 h-14 animate-spin" style={{ color: action.glowColor, animationDuration: '1.5s' }} />
+                        ) : (
+                          <CharacterSVG type={action.id} />
+                        )}
                       </motion.div>
                       <div
                         className="absolute -bottom-0.5 w-8 h-1.5 rounded-full bg-white/20 blur-sm"
                       />
                     </div>
-                    <p className="font-bold text-sm leading-tight relative z-10 text-center">{action.label}</p>
+                    <p className="font-bold text-sm leading-tight relative z-10 text-center">
+                      {isLoading ? actionLabels[action.id] : action.label}
+                    </p>
                     <p className="text-[10px] opacity-60 mt-1 relative z-10 text-center">{action.desc}</p>
                     <motion.div
                       initial={{ opacity: 0 }}
@@ -763,7 +776,8 @@ export const Dashboard = () => {
             >
               {/* --- Scan Modal --- */}
               {activeModal === 'scan' && (
-                <div>
+                <div className="relative">
+                  <AnimatePresence>{loadingAction === 'scan' && <ModalLoadingOverlay actionId="scan" />}</AnimatePresence>
                   <div className="p-6 border-b border-cyber-border flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Shield className="w-6 h-6 text-neon-cyan" />
@@ -772,24 +786,7 @@ export const Dashboard = () => {
                     <button onClick={closeModal} className="text-gray-400 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
                   </div>
                   <div className="p-6 space-y-6">
-                    {scanProgress === 'idle' && (
-                      <div className="text-center py-8 text-gray-400 text-sm">Initializing scan engine...</div>
-                    )}
-                    {scanProgress === 'scanning' && (
-                      <div className="text-center space-y-4">
-                        <ScanningRadar />
-                        <p className="text-neon-cyan font-mono text-sm animate-pulse">Scanning cloud infrastructure...</p>
-                        <div className="w-full bg-cyber-dark rounded-full h-2 overflow-hidden">
-                          <motion.div
-                            initial={{ width: '0%' }}
-                            animate={{ width: '100%' }}
-                            transition={{ duration: 3, ease: 'easeInOut' }}
-                            className="h-full bg-gradient-to-r from-neon-cyan to-neon-purple rounded-full"
-                          />
-                        </div>
-                      </div>
-                    )}
-                    {scanProgress === 'done' && (
+                    {hasAnalysis ? (
                       <div className="space-y-4">
                         <div className="text-center">
                           <div className="w-16 h-16 rounded-full bg-neon-green/20 border-2 border-neon-green flex items-center justify-center mx-auto mb-3">
@@ -797,27 +794,38 @@ export const Dashboard = () => {
                           </div>
                           <h4 className="text-white font-bold text-lg">Scan Complete</h4>
                           <p className="text-gray-400 text-sm mt-1">
-                            {hasAnalysis
-                              ? `${resources.length} resources scanned, ${analysis.findings.length} findings identified`
-                              : 'No dataset loaded — upload resources in Threat Dataset Tester'}
+                            {resources.length} resources scanned, {analysis.findings.length} findings identified
                           </p>
                         </div>
-                        {hasAnalysis && (
-                          <div className="grid grid-cols-2 gap-3">
-                            {[
-                              { label: 'Total Resources', value: resources.length, color: 'text-neon-cyan' },
-                              { label: 'Findings', value: analysis.findings.length, color: 'text-orange-500' },
-                              { label: 'Critical', value: criticalCount, color: 'text-red-500' },
-                              { label: 'Score', value: `${complianceScore}%`, color: 'text-neon-green' },
-                            ].map(s => (
-                              <div key={s.label} className="p-3 rounded-lg bg-cyber-dark/50 border border-cyber-border text-center">
-                                <div className={`text-xl font-bold ${s.color}`}>{s.value}</div>
-                                <div className="text-xs text-gray-400">{s.label}</div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        <div className="grid grid-cols-2 gap-3">
+                          {[
+                            { label: 'Total Resources', value: resources.length, color: 'text-neon-cyan' },
+                            { label: 'Findings', value: analysis.findings.length, color: 'text-orange-500' },
+                            { label: 'Critical', value: criticalCount, color: 'text-red-500' },
+                            { label: 'Score', value: `${complianceScore}%`, color: 'text-neon-green' },
+                          ].map(s => (
+                            <div key={s.label} className="p-3 rounded-lg bg-cyber-dark/50 border border-cyber-border text-center">
+                              <div className={`text-xl font-bold ${s.color}`}>{s.value}</div>
+                              <div className="text-xs text-gray-400">{s.label}</div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="space-y-2">
+                          <p className="text-xs text-gray-500 font-mono uppercase">Provider Breakdown</p>
+                          {Object.entries(analysis.providerBreakdown).map(([provider, data]) => (
+                            <div key={provider} className="flex items-center justify-between p-2.5 rounded-lg bg-cyber-dark/50 border border-cyber-border">
+                              <span className="text-sm text-white">{provider}</span>
+                              <span className="text-xs text-gray-400">{data.resources} resources, {data.threats} threats</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
+                    ) : (
+                      <NoDataEmptyState
+                        message="No dataset loaded — upload resources in Threat Dataset Tester to run a compliance scan."
+                        actionLabel="Go to Threat Dataset Tester"
+                        actionLink="/threat-tester"
+                      />
                     )}
                   </div>
                   <div className="p-4 border-t border-cyber-border flex justify-end">
@@ -828,7 +836,8 @@ export const Dashboard = () => {
 
               {/* --- Threat Hunt Modal --- */}
               {activeModal === 'hunt' && (
-                <div>
+                <div className="relative">
+                  <AnimatePresence>{loadingAction === 'hunt' && <ModalLoadingOverlay actionId="hunt" />}</AnimatePresence>
                   <div className="p-6 border-b border-cyber-border flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Bug className="w-6 h-6 text-neon-purple" />
@@ -837,21 +846,7 @@ export const Dashboard = () => {
                     <button onClick={closeModal} className="text-gray-400 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
                   </div>
                   <div className="p-6 space-y-6">
-                    {!huntResults ? (
-                      <div className="text-center space-y-4">
-                        <ThreatHuntAnimation />
-                        <p className="text-neon-purple font-mono text-sm animate-pulse">Hunting for anomalies...</p>
-                        <div className="flex justify-center gap-1">
-                          {[0,1,2].map(i => (
-                            <motion.div
-                              key={i}
-                              className="typing-dot w-2 h-2 rounded-full bg-neon-purple"
-                              style={{ animationDelay: `${i * 0.2}s` }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
+                    {hasAnalysis && analysis.findings.length > 0 ? (
                       <div className="space-y-4">
                         <div className="text-center">
                           <div className="relative w-24 h-24 mx-auto mb-3">
@@ -859,29 +854,31 @@ export const Dashboard = () => {
                             <div className="absolute inset-0 rounded-full border-2 border-red-500/30 animate-ping" />
                           </div>
                           <h4 className="text-white font-bold text-lg">Threats Identified</h4>
-                          <p className="text-4xl font-bold text-red-500 mt-2">{huntResults.found}</p>
-                          <p className="text-gray-400 text-xs mt-1">Scan completed in {huntResults.time}</p>
+                          <p className="text-4xl font-bold text-red-500 mt-2">{analysis.findings.length}</p>
+                          <p className="text-gray-400 text-xs mt-1">Based on loaded dataset</p>
                         </div>
                         <div className="space-y-2">
-                          {[
-                            { severity: 'critical', title: 'S3 Bucket Public Access', service: 'AWS S3' },
-                            { severity: 'high', title: 'Unrestricted SSH (Port 22)', service: 'EC2 Security Group' },
-                            { severity: 'medium', title: 'IAM Key Rotation Disabled', service: 'AWS IAM' },
-                          ].slice(0, huntResults.found).map((r, i) => (
+                          {analysis.findings.slice(0, 10).map((f, i) => (
                             <motion.div
-                              key={i}
+                              key={f.id}
                               initial={{ opacity: 0, x: -10 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: i * 0.15 }}
                               className="flex items-center gap-3 p-2.5 rounded-lg bg-cyber-dark/50 border border-cyber-border"
                             >
-                              <div className={`w-2 h-2 rounded-full ${r.severity === 'critical' ? 'bg-red-500' : r.severity === 'high' ? 'bg-orange-500' : 'bg-yellow-500'}`} />
-                              <span className="text-sm text-white flex-1">{r.title}</span>
-                              <span className="text-xs text-gray-500 font-mono">{r.service}</span>
+                              <div className={`w-2 h-2 rounded-full ${f.severity === 'Critical' ? 'bg-red-500' : f.severity === 'High' ? 'bg-orange-500' : 'bg-yellow-500'}`} />
+                              <span className="text-sm text-white flex-1">{f.threat}</span>
+                              <span className="text-xs text-gray-500 font-mono">{f.provider}/{f.service}</span>
                             </motion.div>
                           ))}
                         </div>
                       </div>
+                    ) : (
+                      <NoDataEmptyState
+                        message="No threats to hunt — load a dataset in Threat Dataset Tester."
+                        actionLabel="Go to Threat Dataset Tester"
+                        actionLink="/threat-tester"
+                      />
                     )}
                   </div>
                   <div className="p-4 border-t border-cyber-border flex justify-end">
@@ -892,7 +889,8 @@ export const Dashboard = () => {
 
               {/* --- Report Modal --- */}
               {activeModal === 'report' && (
-                <div>
+                <div className="relative">
+                  <AnimatePresence>{loadingAction === 'report' && <ModalLoadingOverlay actionId="report" />}</AnimatePresence>
                   <div className="p-6 border-b border-cyber-border flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <FileText className="w-6 h-6 text-neon-green" />
@@ -901,19 +899,7 @@ export const Dashboard = () => {
                     <button onClick={closeModal} className="text-gray-400 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
                   </div>
                   <div className="p-6 space-y-6">
-                    {!reportDone ? (
-                      <div className="text-center space-y-6">
-                        <div className="relative w-24 h-24 mx-auto">
-                          <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
-                            className="w-full h-full rounded-full border-2 border-dashed border-neon-green/50"
-                          />
-                          <FileText className="w-8 h-8 text-neon-green absolute inset-0 m-auto animate-pulse-glow" />
-                        </div>
-                        <ReportProgress done={false} />
-                      </div>
-                    ) : (
+                    {hasAnalysis ? (
                       <div className="space-y-4">
                         <ReportProgress done={true} />
                         <motion.div
@@ -926,7 +912,7 @@ export const Dashboard = () => {
                           <p className="text-xs text-gray-400 mt-1">Ready to download</p>
                           <motion.button
                             onClick={() => {
-                              const text = `CLOUDCORE X - Security Report\n\nGenerated: ${new Date().toLocaleString()}\n\n${hasAnalysis ? `Resources: ${resources.length}\nFindings: ${analysis.findings.length}\nRisk Score: ${analysis.riskScore}/100\nThreat Level: ${analysis.threatLevel}\n\nProvider Breakdown:\n${Object.entries(analysis.providerBreakdown).map(([p, d]) => `  ${p}: ${d.resources} resources, ${d.threats} threats`).join('\n')}\n\nFindings:\n${analysis.findings.map(f => `  [${f.severity}] ${f.provider}/${f.service}: ${f.threat} (Score: ${f.riskScore})`).join('\n')}` : 'No dataset loaded. Upload in Threat Dataset Tester first.'}\n\n--- End of Report ---`;
+                              const text = `CLOUDCORE X - Security Report\n\nGenerated: ${new Date().toLocaleString()}\n\nResources: ${resources.length}\nFindings: ${analysis.findings.length}\nRisk Score: ${analysis.riskScore}/100\nThreat Level: ${analysis.threatLevel}\n\nProvider Breakdown:\n${Object.entries(analysis.providerBreakdown).map(([p, d]) => `  ${p}: ${d.resources} resources, ${d.threats} threats`).join('\n')}\n\nFindings:\n${analysis.findings.map(f => `  [${f.severity}] ${f.provider}/${f.service}: ${f.threat} (Score: ${f.riskScore})`).join('\n')}\n\n--- End of Report ---`;
                               const blob = new Blob([text], { type: 'text/plain' });
                               const url = URL.createObjectURL(blob);
                               const a = document.createElement('a');
@@ -945,6 +931,12 @@ export const Dashboard = () => {
                           </motion.button>
                         </motion.div>
                       </div>
+                    ) : (
+                      <NoDataEmptyState
+                        message="No dataset loaded — upload resources in Threat Dataset Tester to generate a report."
+                        actionLabel="Go to Threat Dataset Tester"
+                        actionLink="/threat-tester"
+                      />
                     )}
                   </div>
                   <div className="p-4 border-t border-cyber-border flex justify-end">
@@ -955,7 +947,8 @@ export const Dashboard = () => {
 
               {/* --- Alerts Modal --- */}
               {activeModal === 'alerts' && (
-                <div>
+                <div className="relative">
+                  <AnimatePresence>{loadingAction === 'alerts' && <ModalLoadingOverlay actionId="alerts" />}</AnimatePresence>
                   <div className="p-6 border-b border-cyber-border flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <AlertTriangle className="w-6 h-6 text-orange-500" />
@@ -984,7 +977,7 @@ export const Dashboard = () => {
                               severity: f.severity.toLowerCase(),
                               title: f.threat,
                               desc: `${f.provider}/${f.service} — ${f.description.slice(0, 80)}`,
-                              time: 'now',
+                              time: new Date(analysis.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                             }} i={i} />
                           ))}
                         </div>
